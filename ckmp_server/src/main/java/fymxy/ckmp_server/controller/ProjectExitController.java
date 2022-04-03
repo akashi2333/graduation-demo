@@ -1,0 +1,80 @@
+package fymxy.ckmp_server.controller;
+
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import fymxy.ckmp_server.common.Respone;
+import fymxy.ckmp_server.entity.ProjectExit;
+import fymxy.ckmp_server.service.ProjectExitService;
+import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ *  前端控制器
+ * </p>
+ *
+ * @author fymxy
+ * @since 2022-03-26
+ */
+@RestController
+@RequestMapping("/project-exit")
+@Api(tags = "project申请 退退退 的增删查")
+public class ProjectExitController {
+    @Autowired
+    ProjectExitService projectExitService;
+
+    @ApiOperation(value = "申请退群操作")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "申请成功")
+    })
+    @PostMapping("/add")
+    private Respone add(@RequestBody ProjectExit projectExit){
+        projectExitService.save(projectExit);
+        return new Respone(200,"申请成功",null);
+    }
+
+    @ApiOperation(value = "删除对应申请退群操作的记录（即处理了此请求）")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "处理成功")
+    })
+    @DeleteMapping("/delete")
+    private Respone delete(@RequestBody ProjectExit projectExit){
+        projectExitService.remove(new QueryWrapper<ProjectExit>().eq("uid",projectExit.getUid()).eq("pid",projectExit.getPid()));
+        return new Respone(200,"处理成功",null);
+    }
+
+    @ApiOperation(value = "根据pid查询退群人员id，返回int的list")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "处理成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {"projectExit.uid"})
+    @GetMapping("/getByProjectId")
+    private Respone getByProjectId(@RequestBody ProjectExit projectExit){
+        ArrayList<Integer> res = new ArrayList<>();
+        for (ProjectExit exit : projectExitService.list(new QueryWrapper<ProjectExit>()
+                .eq("pid", projectExit.getPid()))) {
+            res.add(exit.getUid());
+        }
+        return new Respone(200,"处理成功",res);
+    }
+
+    @ApiOperation(value = "根据uid查询退的群，返回int的list")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "处理成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {"projectExit.pid"})
+    @GetMapping("/getByUserId")
+    private Respone getByUserId(@RequestBody ProjectExit projectExit){
+        ArrayList<Integer> res = new ArrayList<>();
+        for (ProjectExit exit : projectExitService.list(new QueryWrapper<ProjectExit>()
+                .eq("uid", projectExit.getUid()))) {
+            res.add(exit.getUid());
+        }
+        return new Respone(200,"处理成功",res);
+    }
+}
