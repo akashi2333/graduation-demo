@@ -1,6 +1,6 @@
 package fymxy.ckmp_server.controller;
 
-
+import org.slf4j.Logger;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
@@ -11,7 +11,9 @@ import fymxy.ckmp_server.service.ProjectService;
 import fymxy.ckmp_server.service.UserProjectService;
 import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ public class UserController {
     @Autowired
     UserProjectService userProjectService;
 
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @ApiOperation(value = "登录操作")
     @ApiOperationSupport(ignoreParameters = {"user.id","user.e_mail"})
     @ApiResponses({
@@ -46,9 +50,10 @@ public class UserController {
     @GetMapping("/login")
     private Respone login(@RequestBody User user){
         QueryWrapper<User> wrapper = new QueryWrapper<>();
-        wrapper.eq("name",user.getName());
+        wrapper.eq("name",user.getUsername());
         wrapper.eq("password",user.getPassword());
         User one = userService.getOne(wrapper);
+        logger.warn("????????");
         if (one == null){
             return new Respone(400,"登录失败",null);
         }
@@ -65,12 +70,14 @@ public class UserController {
     })
     @PostMapping("/change")
     private Respone changeDetails(@RequestBody User user){
-
         //不准改成别人的名字
-        User one = userService.getOne(new QueryWrapper<User>().eq("name", user.getName()));
+        User one = userService.getOne(new QueryWrapper<User>().eq("name", user.getUsername()));
         if (one!=null && !one.getId().equals(user.getId())){
+            logger.warn(String.valueOf(user));
             return new Respone(400,"修改失败",null);
         }
+        //加密
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userService.updateById(user);
         return new Respone(200,"修改成功",null);
     }
@@ -84,7 +91,7 @@ public class UserController {
     @PostMapping("/register")
     private Respone register(@RequestBody User user){
         //不准改成别人的名字
-        User one = userService.getOne(new QueryWrapper<User>().eq("name", user.getName()));
+        User one = userService.getOne(new QueryWrapper<User>().eq("name", user.getUsername()));
         if (one!=null && !one.getId().equals(user.getId())){
             return new Respone(400,"注册失败",null);
         }
