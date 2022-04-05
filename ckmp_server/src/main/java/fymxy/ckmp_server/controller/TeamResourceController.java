@@ -4,12 +4,14 @@ package fymxy.ckmp_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
-import fymxy.ckmp_server.entity.ProjectResource;
-import fymxy.ckmp_server.service.ProjectResourceService;
-import io.swagger.annotations.*;
+import fymxy.ckmp_server.entity.TeamResource;
+import fymxy.ckmp_server.service.TeamResourceService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -26,15 +28,14 @@ import java.util.List;
  * </p>
  *
  * @author fymxy
- * @since 2022-03-26
+ * @since 2022-04-04
  */
 @RestController
-@RequestMapping("/project-resource")
-@Validated
-@Api(tags = "文件上传和下载")
-public class ProjectResourceController {
+@RequestMapping("/team-resource")
+@Api(tags = "团队资源的增查")
+public class TeamResourceController {
     @Autowired
-    ProjectResourceService projectResourceService;
+    TeamResourceService teamResourceService;
 
     @Value("${file.basedir}")
     String basePath;
@@ -44,17 +45,14 @@ public class ProjectResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "上传成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.timestamp"})
     @PostMapping("/add")
-    public Respone uploadFile(@RequestBody ProjectResource projectResource, MultipartFile file) throws IOException {
+    public Respone uploadFile(@RequestBody TeamResource teamResource, MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
-
-        projectResource.setResourceName(originalFilename);
-        projectResource.setTimestamp(new Date());
-
+        teamResource.setResourceName(originalFilename);
         file.transferTo(new File(basePath+originalFilename));
-
-        projectResourceService.save(projectResource);
+        teamResource.setTimestamp(new Date());
+        teamResourceService.save(teamResource);
 
         return new Respone(200,"上传成功",null);
     }
@@ -63,16 +61,16 @@ public class ProjectResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "下载成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"teamResource.timestamp"})
     @GetMapping("/download")
-    public Respone downloadFile(@RequestBody ProjectResource projectResource , HttpServletResponse response) throws IOException {
-        ProjectResource one = projectResourceService.getOne(new QueryWrapper<ProjectResource>()
-                .eq("uid", projectResource.getUid())
-                .eq("pid", projectResource.getPid())
-                .eq("resource_name", projectResource.getResourceName())
+    public Respone downloadFile(@RequestBody TeamResource teamResource , HttpServletResponse response) throws IOException {
+        TeamResource one = teamResourceService.getOne(new QueryWrapper<TeamResource>()
+                .eq("uid", teamResource.getUid())
+                .eq("tid", teamResource.getTid())
+                .eq("resource_name", teamResource.getResourceName())
         );
-        File file = new File(one.getResourceName());
 
+        File file = new File(one.getResourceName());
         OutputStream outputStream=null;
         InputStream inputStream=null;
         BufferedInputStream bufferedInputStream=null;
@@ -91,18 +89,17 @@ public class ProjectResourceController {
         inputStream.close();
         outputStream.close();
         bufferedInputStream.close();
-
         return new Respone(200,"下载成功",null);
     }
 
-    @ApiOperation(value = "根据pid获取文件列表")
+    @ApiOperation(value = "获取文件列表")
     @ApiResponses({
             @ApiResponse(code = 200,message = "获取成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.uid","projectResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.uid","teamResource.timestamp"})
     @PostMapping("/getFileList")
-    public Respone getFileList(@RequestBody ProjectResource projectResource){
-        List<ProjectResource> list = projectResourceService.list(new QueryWrapper<ProjectResource>().eq("pid", projectResource.getPid()));
+    public Respone getFileList(@RequestBody TeamResource teamResource){
+        List<TeamResource> list = teamResourceService.list(new QueryWrapper<TeamResource>().eq("tid", teamResource.getTid()));
         return new Respone(200,"获取成功",list);
     }
 }

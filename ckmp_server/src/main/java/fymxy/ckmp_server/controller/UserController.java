@@ -13,7 +13,6 @@ import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ public class UserController {
         wrapper.eq("name",user.getUsername());
         wrapper.eq("password",user.getPassword());
         User one = userService.getOne(wrapper);
-        logger.warn("????????");
         if (one == null){
             return new Respone(400,"登录失败",null);
         }
@@ -76,8 +74,6 @@ public class UserController {
             logger.warn(String.valueOf(user));
             return new Respone(400,"修改失败",null);
         }
-        //加密
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userService.updateById(user);
         return new Respone(200,"修改成功",null);
     }
@@ -108,8 +104,8 @@ public class UserController {
     public Respone getprojects(@RequestBody UserProject userProject){
         //成员列表
         List<Project> members = new ArrayList<>();
-        for (UserProject up : userProjectService.list(new QueryWrapper<UserProject>().eq("uid", userProject.getUid()))) {
-            members.add(projectService.getById(up.getPid()));
+        for (UserProject joinProject : userProjectService.list(new QueryWrapper<UserProject>().eq("uid", userProject.getUid()))) {
+            members.add(projectService.getById(joinProject.getPid()));
         }
         return new Respone(200,"查找成功",members);
     }

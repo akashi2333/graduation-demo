@@ -13,6 +13,7 @@ import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,12 +34,13 @@ public class ProjectController {
     UserProjectService userProjectService;
 
     @ApiOperation(value = "新建project操作")
-    @ApiOperationSupport(ignoreParameters = {"project.pid"})
+    @ApiOperationSupport(ignoreParameters = {"project.pid","project.timestamp"})
     @ApiResponses({
             @ApiResponse(code = 200,message = "创建成功")
     })
     @PostMapping("/add")
     private Respone add(@RequestBody Project project){
+        project.setTimestamp(new Date());
         projectService.save(project);
         //插入到群-成员关系表
         userProjectService.save(new UserProject(project.getUid(),project.getPid()));
@@ -51,6 +53,7 @@ public class ProjectController {
     })
     @PutMapping("/update")
     private Respone update(@RequestBody Project project){
+        // TODO: 2022/4/5 根据时间是否为创建还是最后修改决定是否要求修改
         if (projectService.update(new UpdateWrapper<>(project))){
             return new Respone(200,"修改成功",null);
         }else {
@@ -58,11 +61,11 @@ public class ProjectController {
         }
     }
 
-    @ApiOperation(value = "查询project操作")
+    @ApiOperation(value = "根据pid查询project操作")
     @ApiResponses({
             @ApiResponse(code = 200,message = "创建成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"project.name","project.uid","project.state"})
+    @ApiOperationSupport(ignoreParameters = {"project.name","project.uid","project.state","project.timestamp"})
     @GetMapping("/getSingleProjectDetail")
     private Respone getSingleProjectDetail(@RequestBody Project project){
         Project res = projectService.getById(project.getPid());
