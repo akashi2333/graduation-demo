@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/team")
-@Api(tags = "team 的增改查删")
+@Api(tags = "team 的增改查删（其中timestamp为java的date形式）")
 public class TeamController {
     @Autowired
     TeamService teamService;
@@ -95,10 +95,15 @@ public class TeamController {
         return new Respone(200, "查询成功", res);
     }
 
-    @ApiOperation(value = "某人离开团队")
+    @ApiOperation(value = "某人离开团队,团队拥有者不能离开")
     @ApiResponses({
             @ApiResponse(code = 200,message = "删除成功")
     })
+    @ApiOperationSupport(ignoreParameters = {
+            "team.isowner",
+            "team.name",
+            "team.brief",
+            "team.timestamp"})
     @DeleteMapping("/delete")
     private Respone delete(@RequestBody Team team){
         // TODO: 2022/4/5 团队主人离开团队怎么办

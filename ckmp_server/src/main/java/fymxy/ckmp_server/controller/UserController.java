@@ -37,10 +37,10 @@ public class UserController {
     @Autowired
     UserProjectService userProjectService;
 
-    private static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @ApiOperation(value = "登录操作")
-    @ApiOperationSupport(ignoreParameters = {"user.id","user.e_mail"})
+    @ApiOperationSupport(ignoreParameters = {"user.id","user.eMail"})
     @ApiResponses({
             @ApiResponse(code = 400,message = "登录失败"),
             @ApiResponse(code = 200,message = "登录成功 返回用戶id")
@@ -61,7 +61,7 @@ public class UserController {
         }
     }
 
-    @ApiOperation(value = "修改操作")
+    @ApiOperation(value = "修改操作 需要email，错误的显示了false")
     @ApiResponses({
             @ApiResponse(code = 400,message = "修改失败"),
             @ApiResponse(code = 200,message = "修改成功")
@@ -79,7 +79,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "注册操作")
-    @ApiOperationSupport(ignoreParameters = {"user.id"})
+    @ApiOperationSupport(ignoreParameters = {"user.id","user.eMail"})
     @ApiResponses({
             @ApiResponse(code = 400,message = "注册失败"),
             @ApiResponse(code = 200,message = "注册成功")
@@ -96,7 +96,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "获得加入的群 返回群list")
-    @ApiOperationSupport(ignoreParameters = {"user.e_mail","user.name","user.password"})
+    @ApiOperationSupport(ignoreParameters = {"userProject.pid"})
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功")
     })

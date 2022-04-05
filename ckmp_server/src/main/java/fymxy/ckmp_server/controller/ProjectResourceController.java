@@ -40,7 +40,7 @@ public class ProjectResourceController {
     String basePath;
 
 
-    @ApiOperation(value = "上传文件操作")
+    @ApiOperation(value = "项目上传文件操作")
     @ApiResponses({
             @ApiResponse(code = 200,message = "上传成功")
     })
