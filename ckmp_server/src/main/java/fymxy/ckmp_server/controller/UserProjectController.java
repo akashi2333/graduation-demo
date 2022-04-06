@@ -62,7 +62,7 @@ public class UserProjectController {
             @ApiResponse(code = 200,message = "查找成功 返回群成员")
     })
     @GetMapping("getMembers")
-    public Respone getMembers(@RequestBody UserProject userProject){
+    public Respone getMembers(UserProject userProject){
         //群成员
         List<User> members = new ArrayList<>();
         for (UserProject up : userProjectService.list(new QueryWrapper<UserProject>().eq("pid", userProject.getPid()))) {

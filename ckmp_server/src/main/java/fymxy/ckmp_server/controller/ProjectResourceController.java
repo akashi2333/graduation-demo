@@ -65,7 +65,7 @@ public class ProjectResourceController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectResource.timestamp"})
     @GetMapping("/download")
-    public Respone downloadFile(@RequestBody ProjectResource projectResource , HttpServletResponse response) throws IOException {
+    public Respone downloadFile(ProjectResource projectResource , HttpServletResponse response) throws IOException {
         ProjectResource one = projectResourceService.getOne(new QueryWrapper<ProjectResource>()
                 .eq("uid", projectResource.getUid())
                 .eq("pid", projectResource.getPid())

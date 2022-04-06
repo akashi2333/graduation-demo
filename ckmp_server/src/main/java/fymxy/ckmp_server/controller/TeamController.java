@@ -74,7 +74,7 @@ public class TeamController {
             "team.brief",
             "team.timestamp"})
     @GetMapping("/getMyTeamDetail")
-    private Respone getMyTeamDetail(@RequestBody Team team) {
+    private Respone getMyTeamDetail( Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()).eq("isowner", 1));
         return new Respone(200, "查询成功", res);
     }
@@ -90,7 +90,7 @@ public class TeamController {
             "team.brief",
             "team.timestamp"})
     @GetMapping("/getJoinTeamDetail")
-    private Respone getJoinTeamDetail(@RequestBody Team team) {
+    private Respone getJoinTeamDetail(Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()));
         return new Respone(200, "查询成功", res);
     }
@@ -123,7 +123,7 @@ public class TeamController {
             "team.brief",
             "team.timestamp"})
     @GetMapping("/getByTid")
-    private Respone getByTid(@RequestBody Team team){
+    private Respone getByTid(Team team){
         Team byId = teamService.getById(team.getTid());
         return new Respone(200,"查询成功",byId);
     }

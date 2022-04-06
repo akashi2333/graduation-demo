@@ -55,7 +55,7 @@ public class TeamJoinController {
     })
     @ApiOperationSupport(ignoreParameters = {"teamJoin.uid"})
     @GetMapping("/getByTeamId")
-    private Respone getByTeamId(@RequestBody TeamJoin teamJoin){
+    private Respone getByTeamId(TeamJoin teamJoin){
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamJoin exit : teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("tid", teamJoin.getTid()))) {
@@ -70,7 +70,7 @@ public class TeamJoinController {
     })
     @ApiOperationSupport(ignoreParameters = {"teamJoin.tid"})
     @GetMapping("/getByUserId")
-    private Respone getByUserId(@RequestBody TeamJoin teamJoin){
+    private Respone getByUserId( TeamJoin teamJoin){
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamJoin exit : teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("uid", teamJoin.getUid()))) {

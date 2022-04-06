@@ -53,7 +53,7 @@ public class IdeaController {
             @ApiResponse(code = 200,message = "查询成功")
     })
     @GetMapping("get")
-    private Respone get(@RequestBody Idea idea){
+    private Respone get(Idea idea){
         ArrayList<String> res = new ArrayList<>();
         for (Idea id : ideaService.list(new QueryWrapper<Idea>().eq("id", idea.getId()))) {
             res.add(id.getIdea());

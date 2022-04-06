@@ -54,7 +54,7 @@ public class TodoController {
     })
     @ApiOperationSupport(ignoreParameters = {"todo.todo"})
     @GetMapping("getById")
-    private Respone getById(@RequestBody Todo todo){
+    private Respone getById(Todo todo){
         ArrayList<String> list = new ArrayList<>();
         for (Todo id : todoService.list(new QueryWrapper<Todo>().eq("id", todo.getId()))) {
             list.add(id.getTodo());

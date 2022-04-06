@@ -34,7 +34,6 @@ public class ChatController {
             @ApiResponse(code = 200,message = "发送成功")
     })
     @PostMapping("/add")
-    @ResponseBody
     private Respone add(@RequestBody Chat chat){
         chat.setSendDate(new Date());
         chatService.save(chat);
@@ -47,8 +46,7 @@ public class ChatController {
             @ApiResponse(code = 200,message = "查询成功 返回聊天记录")
     })
     @GetMapping("/findMessages")
-    @ResponseBody
-    private Respone findMessages(@RequestBody Chat chat){
+    private Respone findMessages(Chat chat){
         List<Chat> chatList = chatService.list(new QueryWrapper<Chat>()
                 .eq("send_all", chat.getSendAll())
                 .eq("rid", chat.getRid()));

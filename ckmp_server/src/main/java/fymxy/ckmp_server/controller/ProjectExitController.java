@@ -54,7 +54,7 @@ public class ProjectExitController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectExit.uid"})
     @GetMapping("/getByProjectId")
-    private Respone getByProjectId(@RequestBody ProjectExit projectExit){
+    private Respone getByProjectId( ProjectExit projectExit){
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectExit exit : projectExitService.list(new QueryWrapper<ProjectExit>()
                 .eq("pid", projectExit.getPid()))) {
@@ -69,7 +69,7 @@ public class ProjectExitController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectExit.pid"})
     @GetMapping("/getByUserId")
-    private Respone getByUserId(@RequestBody ProjectExit projectExit){
+    private Respone getByUserId(ProjectExit projectExit){
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectExit exit : projectExitService.list(new QueryWrapper<ProjectExit>()
                 .eq("uid", projectExit.getUid()))) {

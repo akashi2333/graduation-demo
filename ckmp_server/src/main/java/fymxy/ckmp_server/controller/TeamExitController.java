@@ -57,7 +57,7 @@ public class TeamExitController {
     })
     @ApiOperationSupport(ignoreParameters = {"teamExit.uid"})
     @GetMapping("/getByTeamId")
-    private Respone getByTeamId(@RequestBody TeamExit teamExit){
+    private Respone getByTeamId(TeamExit teamExit){
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamExit exit : teamExitService.list(new QueryWrapper<TeamExit>()
                 .eq("tid", teamExit.getTid()))) {
@@ -72,7 +72,7 @@ public class TeamExitController {
     })
     @ApiOperationSupport(ignoreParameters = {"teamExit.tid"})
     @GetMapping("/getByUserId")
-    private Respone getByUserId(@RequestBody TeamExit teamExit){
+    private Respone getByUserId(TeamExit teamExit){
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamExit exit : teamExitService.list(new QueryWrapper<TeamExit>()
                 .eq("uid", teamExit.getUid()))) {

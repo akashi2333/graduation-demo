@@ -47,7 +47,7 @@ public class UserController {
     })
 
     @GetMapping("/login")
-    private Respone login(@RequestBody User user){
+    private Respone login(User user){
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("name",user.getUsername());
         wrapper.eq("password",user.getPassword());
@@ -68,6 +68,8 @@ public class UserController {
     })
     @PostMapping("/change")
     private Respone changeDetails(@RequestBody User user){
+        //如果加入Spring Security此处需要对密码进行加密
+
         //不准改成别人的名字
         User one = userService.getOne(new QueryWrapper<User>().eq("name", user.getUsername()));
         if (one!=null && !one.getId().equals(user.getId())){
@@ -100,8 +102,8 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功")
     })
-    @GetMapping("getMembers")
-    public Respone getprojects(@RequestBody UserProject userProject){
+    @GetMapping("/getMembers")
+    public Respone getprojects(UserProject userProject){
         //成员列表
         List<Project> members = new ArrayList<>();
         for (UserProject joinProject : userProjectService.list(new QueryWrapper<UserProject>().eq("uid", userProject.getUid()))) {

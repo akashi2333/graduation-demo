@@ -53,7 +53,7 @@ public class ProjectJoinController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectJoin.uid"})
     @GetMapping("/getByProjectId")
-    private Respone getByProjectId(@RequestBody ProjectJoin projectJoin){
+    private Respone getByProjectId( ProjectJoin projectJoin){
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectJoin exit : projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("pid", projectJoin.getPid()))) {
@@ -68,7 +68,7 @@ public class ProjectJoinController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectJoin.pid"})
     @GetMapping("/getByUserId")
-    private Respone getByUserId(@RequestBody ProjectJoin projectJoin){
+    private Respone getByUserId( ProjectJoin projectJoin){
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectJoin exit : projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("uid", projectJoin.getUid()))) {
