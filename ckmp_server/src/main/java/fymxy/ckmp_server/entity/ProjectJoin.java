@@ -19,12 +19,12 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(description = "加群申请")
+@ApiModel(description = "加项目申请")
 public class ProjectJoin implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "群id",required = true)
+    @ApiModelProperty(value = "项目id",required = true)
     private Integer pid;
 
     @ApiModelProperty(value = "用户id",required = true)

@@ -28,7 +28,7 @@ public class ProjectExitController {
     @Autowired
     ProjectExitService projectExitService;
 
-    @ApiOperation(value = "申请退群操作")
+    @ApiOperation(value = "申请退项目操作")
     @ApiResponses({
             @ApiResponse(code = 200,message = "申请成功")
     })
@@ -38,7 +38,7 @@ public class ProjectExitController {
         return new Respone(200,"申请成功",null);
     }
 
-    @ApiOperation(value = "删除对应申请退群操作的记录（即处理了此请求）")
+    @ApiOperation(value = "删除对应申请退项目操作的记录（即处理了此请求）")
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
@@ -48,7 +48,7 @@ public class ProjectExitController {
         return new Respone(200,"处理成功",null);
     }
 
-    @ApiOperation(value = "根据pid查询退群人员id，返回int的list")
+    @ApiOperation(value = "根据pid查询退项目人员id，返回int的list")
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
@@ -63,7 +63,7 @@ public class ProjectExitController {
         return new Respone(200,"处理成功",res);
     }
 
-    @ApiOperation(value = "根据uid查询退的群，返回int的list")
+    @ApiOperation(value = "根据uid查询退的项目，返回int的list")
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })

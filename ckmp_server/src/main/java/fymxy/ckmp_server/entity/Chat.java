@@ -41,6 +41,7 @@ public class Chat implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
     private Date sendDate;
 
+    // TODO: 2022/4/6 现在可能有三种消息，项目，个人，团队
     @ApiModelProperty(value = "是否为群消息 0为个人此时rid为用户id，1为群发，此时rid为群id",required = true)
     private Boolean sendAll;
 

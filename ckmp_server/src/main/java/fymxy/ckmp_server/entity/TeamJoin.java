@@ -2,7 +2,6 @@ package fymxy.ckmp_server.entity;
 
 import java.io.Serializable;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,18 +14,18 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author fymxy
- * @since 2022-03-26
+ * @since 2022-04-06
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(description = "退项目申请")
-public class ProjectExit implements Serializable {
+@ApiModel(description = "加团队申请")
+public class TeamJoin implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "项目id",required = true)
-    private Integer pid;
+    @ApiModelProperty(value = "团队id",required = true)
+    private Integer tid;
 
     @ApiModelProperty(value = "用户id",required = true)
     private Integer uid;
