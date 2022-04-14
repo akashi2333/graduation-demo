@@ -8,6 +8,8 @@ import TeamDetail from '../pages/TeamDetail'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Search from '../pages/Search'
+import ProjectDetail from '../pages/ProjectDetail'
+import ResourceDetail from '../pages/ResourceDetail'
 
 Vue.use(Router)
 
@@ -42,6 +44,16 @@ export default new Router({
       path: '/TeamDetail/:tid',
       name: '/TeamDetail',
       component: TeamDetail
+    },
+    {
+      path: '/ProjectDetail/:pid',
+      name: '/ProjectDetail',
+      component: ProjectDetail
+    },
+    {
+      path: '/ResourceDetail/:rid',
+      name: '/ResourcetDetail',
+      component: ResourceDetail
     },
     {
       path: '/Login',

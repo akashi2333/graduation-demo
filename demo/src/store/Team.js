@@ -1,5 +1,3 @@
-import jsx from "babel-plugin-syntax-jsx"
-
 const Team = {
   state: {
     tempTeamList: {},

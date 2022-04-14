@@ -102,19 +102,20 @@ export default {
   methods: {
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
+        var _this = this
         if (valid) {
           register({
-            name: this.ruleForm.userName,
-            email: this.ruleForm.email,
-            password: this.ruleForm.password
+            name: _this.ruleForm.userName,
+            email: _this.ruleForm.email,
+            password: _this.ruleForm.password
           }).then(res => {
-            if (res.code === 1) {
-              this.notify('注册成功', 'success')
+            if (res.code === 200) {
+              _this.$message('注册成功')
               setTimeout(function () {
-                this.$router.push({ path: '/' })
+                _this.$router.push({ path: '/' })
               }, 2000)
             } else {
-              this.notify(res.msg, 'error')
+              _this.$message(res.msg)
             }
           })
         } else {
