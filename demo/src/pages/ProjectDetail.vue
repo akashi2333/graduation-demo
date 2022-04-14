@@ -1,38 +1,38 @@
 <template>
-  <div class="team-detail"
+  <div class="project-detail"
        style="margin-top: 65px">
     <div class="intruducation">
       <div class="image">
-        <img :src="team.pic"
+        <img :src="project.pic"
              alt=""
              class="img">
       </div>
       <div class="left">
-        <p class="title">{{team.name}}</p>
+        <p class="title">{{project.name}}</p>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-time">创建时间：{{team.time}}</p>
+          <p class="project-time">创建时间：{{project.time}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-isowner">管理员：{{team.isowner}}</p>
+          <p class="project-isowner">管理员：{{project.isowner}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-text">介绍：{{team.intruducation}}</p>
+          <p class="project-text">介绍：{{project.intruducation}}</p>
         </div>
       </div>
     </div>
     <div class="bottom">
       <el-tabs :stretch="true">
-        <el-tab-pane label="团员管理">
+        <el-tab-pane label="项目成员管理">
           <div class="member">
-            <div class="team-member"
+            <div class="project-member"
                  style="  margin-right: 5px;">
-              <div class="team-member-top">团队成员</div>
+              <div class="project-member-top">项目成员</div>
               <ul class="list">
                 <li v-for="member in members.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="member.uid"
@@ -59,8 +59,8 @@
                              :total="members.length">
               </el-pagination>
             </div>
-            <div class="team-member">
-              <div class="team-member-top">申请人员</div>
+            <div class="project-member">
+              <div class="project-member-top">申请人员</div>
               <ul class="list">
                 <li v-for="tempMember in tempMembers.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="tempMember.id"
@@ -92,48 +92,10 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="项目管理">
-          <div class="project">
-            <div class="project-manage">
-              <div class="project-manage-top">团队项目</div>
-              <ul class="list">
-                <li v-for="project in projects.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="project.pid"
-                    class="list-item">
-                  <div class="list-left">
-                    <i class="el-icon-caret-right"
-                       style="color:#409EFF; font-size:25px"></i>
-                    <div class="project-name">{{project.name}}</div>
-                  </div>
-                  <div class="list-center">
-                    {{project.time}}
-                  </div>
-                  <div class="list-right">
-                    <el-button type="primary"
-                               size="small"
-                               @click="goProject(project)">查看</el-button>
-                    <el-button type="primary"
-                               size="small"
-                               @click="deleteAProject(project)"
-                               v-show="isCreater">删除</el-button>
-                  </div>
-                </li>
-              </ul>
-              <el-pagination class="bottom-bottom"
-                             background
-                             @current-change="handleCurrentChange"
-                             layout="total, prev, pager, next"
-                             :current-page="currentPage"
-                             :page-size="pageSize"
-                             :total="projects.length">
-              </el-pagination>
-            </div>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="团队资源管理">
+        <el-tab-pane label="项目资源管理">
           <div class="resource">
             <div class="resource-manage">
-              <div class="resource-manage-top">团队资源</div>
+              <div class="resource-manage-top">项目资源</div>
               <ul class="list">
                 <li v-for="resource in resources.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="resource.rid"
@@ -168,7 +130,6 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="团队知识图谱">团队知识图谱</el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -176,60 +137,58 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteProject, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, deleteTempMember, deleteResourceFromList, deleteResource } from '../api/Index';
+import { getAllMembers, getAllResources, getAllTempMembers } from '../api/Index';
 
 export default {
-  name: 'TeamDetail',
+  name: 'ProjectDetail',
   data () {
     return {
       pageSize: 5,
       currentPage: 1,
       isCreater: false,
-      tid: 0,
-      team: {},
+      pid: 0,
+      project: {},
       members: [],
-      projects: [],
       resources: [],
       tempMembers: []
     }
   },
   computed: {
     ...mapGetters([
-      'tempTeamList',
+      'tempProjectList',
       'userId'
     ])
   },
   mounted () {
-    if (this.userId === this.tempTeamList.isowner) {
+    if (this.userId === this.tempProjectList.isowner) {
       this.isCreater = true
     }
-    this.tid = this.tempTeamList.tid
-    this.team = this.tempTeamList
-    this.members = this.tempTeamList.members
-    this.tempMembers = this.tempTeamList.tempMembers
-    this.projects = this.tempTeamList.projects
-    this.resources = this.tempTeamList.resources
-    // this.getMembers(this.tid)
-    // this.getTempMembers(this.tid)
-    // this.getProjects(this.tid)
-    // this.getResources(this.tid)
+    this.pid = this.tempProjectList.pid
+    this.project = this.tempProjectList
+    console.log(this.project)
+    this.members = this.tempProjectList.members
+    this.tempMembers = this.tempProjectList.tempMembers
+    this.resources = this.tempProjectList.resources
+    // this.getMembers(this.pid)
+    // this.getTempMembers(this.pid)
+    // this.getResources(this.pid)
   },
   methods: {
     deleteAMember (member) {
       var _this = this
       deleteMemberFromList({
-        type: 0,
-        tid: _this.tid,
+        type: 1,
+        pid: _this.pid,
         uid: member.uid
       }).then(res => {
         if (res.code === 200) {
           deleteMember({
-            type: 0,
-            tid: _this.tid,
+            type: 1,
+            pid: _this.pid,
             uid: member.uid
           }).then(res => {
             if (res.code === 200) {
-              _this.getMembers(_this.tid)
+              _this.getMembers(_this.pid)
               _this.$message('删除成功')
             } else {
               _this.$message('删除失败')
@@ -241,18 +200,18 @@ export default {
     agreeTempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
+        type: 1,
+        pid: _this.pid,
         uid: tempMember.uid
       }).then(res => {
         if (res.code === 200) {
           addTempMember({
-            type: 0,
-            tid: _this.tid,
+            type: 1,
+            pid: _this.pid,
             uid: tempMember.uid
           }).then(res => {
             if (res === 200) {
-              _this.getTempMembers(_this.tid)
+              _this.getTempMembers(_this.pid)
               _this.$message('添加成功')
             } else {
               _this.$message('添加失败')
@@ -264,18 +223,18 @@ export default {
     deleteATempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
+        type: 1,
+        pid: _this.pid,
         uid: tempMember.uid
       }).then(res => {
         if (res.code === 200) {
           deleteTempMember({
-            type: 0,
-            tid: _this.tid,
+            type: 1,
+            pid: _this.pid,
             uid: tempMember.uid
           }).then(res => {
             if (res.code === 200) {
-              _this.getTempMembers(_this.tid)
+              _this.getTempMembers(_this.pid)
               _this.$message('拒绝成功')
             } else {
               _this.$message('拒绝失败')
@@ -284,46 +243,19 @@ export default {
         }
       })
     },
-    goProject (project) {
-      this.$store.commit('setTempProjectList', project)
-      this.$router.push({ path: `/ProjectDetail/${project.pid}` });
-    },
-    deleteAProject (project) {
-      var _this = this
-      deleteProjectFromList({
-        tid: _this.tid,
-        pid: project.pid
-      }).then(res => {
-        if (res === 200) {
-          deleteProject({
-            tid: _this.tid,
-            pid: project.pid
-          }).then(res => {
-            if (res === 200) {
-              _this.getProjects(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
-        }
-      })
-    },
     deleteAresource (resource) {
       var _this = this
       deleteResourceFromList({
-        type: 0,
-        tid: _this.tid,
+        pid: _this.pid,
         rid: resource.rid
       }).then(res => {
         if (res.code === 200) {
           deleteResource({
-            type: 0,
-            tid: _this.tid,
+            pid: _this.pid,
             rid: resource.rid
           }).then(res => {
             if (res.code === 200) {
-              _this.getResources(_this.tid)
+              _this.getResources(_this.pid)
               _this.$message('删除成功')
             } else {
               _this.$message('删除失败')
@@ -357,15 +289,6 @@ export default {
         }
       })
     },
-    getProjects (id) {
-      getAllProgects(id).then(res => {
-        if (res.code === 200) {
-          this.projects = res.data
-        } else {
-          console.log(res.msg)
-        }
-      })
-    },
     getResources (id) {
       getAllResources(id).then(res => {
         if (res.code === 200) {
@@ -380,7 +303,7 @@ export default {
 </script>
 
 <style scoped>
-.team-detail {
+.project-detail {
   margin: 10px 30px 0 30px;
 }
 
@@ -420,12 +343,11 @@ export default {
 .member {
   display: flex;
 }
-.team-member {
+.project-member {
   position: relative;
   width: 50%;
   height: 330px;
 }
-.project-manage,
 .resource-manage {
   display: flex;
   flex-direction: column;
@@ -433,8 +355,7 @@ export default {
   width: 100%;
   height: 330px;
 }
-.team-member-top,
-.project-manage-top,
+.project-member-top,
 .resource-manage-top {
   display: flex;
   justify-content: center;
