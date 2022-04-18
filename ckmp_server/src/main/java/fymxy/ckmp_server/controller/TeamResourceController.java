@@ -47,14 +47,18 @@ public class TeamResourceController {
     })
     @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.timestamp"})
     @PostMapping("/add")
-    public Respone uploadFile(@RequestBody TeamResource teamResource, MultipartFile file) throws IOException {
+    public Respone uploadFile(@RequestBody MultipartFile file,@RequestParam int tid,@RequestParam int uid) throws IOException {
         String originalFilename = file.getOriginalFilename();
+        TeamResource teamResource = new TeamResource();
+        teamResource.setTid(tid);
+        teamResource.setUid(uid);
         teamResource.setResourceName(originalFilename);
-        file.transferTo(new File(basePath+originalFilename));
         teamResource.setTimestamp(new Date());
-        teamResourceService.save(teamResource);
 
+        teamResourceService.save(teamResource);
+        file.transferTo(new File(basePath+originalFilename));
         return new Respone(200,"上传成功",null);
+
     }
 
     @ApiOperation(value = "下载文件操作")
@@ -77,7 +81,10 @@ public class TeamResourceController {
         byte[] bytes=new byte[1024];
         // 获取输出流
         response.setHeader("Content-Disposition", "attachment;filename=" +  new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-        response.setContentType("application/force-download");
+
+        //存在报错
+        //response.setContentType("application/force-download");
+
         inputStream=new  FileInputStream(file);
         bufferedInputStream=new BufferedInputStream(inputStream);
         outputStream = response.getOutputStream();
@@ -97,7 +104,7 @@ public class TeamResourceController {
             @ApiResponse(code = 200,message = "获取成功")
     })
     @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.uid","teamResource.timestamp"})
-    @PostMapping("/getFileList")
+    @GetMapping("/getFileList")
     public Respone getFileList(TeamResource teamResource){
         List<TeamResource> list = teamResourceService.list(new QueryWrapper<TeamResource>().eq("tid", teamResource.getTid()));
         return new Respone(200,"获取成功",list);

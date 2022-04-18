@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.UCDecoder;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -46,15 +47,20 @@ public class ProjectResourceController {
     })
     @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.timestamp"})
     @PostMapping("/add")
-    public Respone uploadFile(@RequestBody ProjectResource projectResource, MultipartFile file) throws IOException {
+    public Respone uploadFile(@RequestBody MultipartFile file,@RequestParam int pid,@RequestParam int uid) throws IOException {
         String originalFilename = file.getOriginalFilename();
+        ProjectResource projectResource = new ProjectResource();
+        projectResource.setPid(pid);
+        projectResource.setUid(uid);
 
         projectResource.setResourceName(originalFilename);
         projectResource.setTimestamp(new Date());
 
+        projectResourceService.save(projectResource);
+
         file.transferTo(new File(basePath+originalFilename));
 
-        projectResourceService.save(projectResource);
+
 
         return new Respone(200,"上传成功",null);
     }
@@ -71,15 +77,18 @@ public class ProjectResourceController {
                 .eq("pid", projectResource.getPid())
                 .eq("resource_name", projectResource.getResourceName())
         );
-        File file = new File(one.getResourceName());
+        File file = new File(basePath + one.getResourceName());
 
         OutputStream outputStream=null;
         InputStream inputStream=null;
         BufferedInputStream bufferedInputStream=null;
         byte[] bytes=new byte[1024];
         // 获取输出流
-        response.setHeader("Content-Disposition", "attachment;filename=" +  new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
-        response.setContentType("application/force-download");
+        response.setHeader("Content-Disposition", "attachment;filename=" +new String(one.getResourceName().getBytes(), StandardCharsets.ISO_8859_1));
+
+        //存在报错
+        //response.setContentType("application/force-download");
+
         inputStream=new  FileInputStream(file);
         bufferedInputStream=new BufferedInputStream(inputStream);
         outputStream = response.getOutputStream();
@@ -100,8 +109,8 @@ public class ProjectResourceController {
             @ApiResponse(code = 200,message = "获取成功")
     })
     @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.uid","projectResource.timestamp"})
-    @PostMapping("/getFileList")
-    public Respone getFileList(@RequestBody ProjectResource projectResource){
+    @GetMapping("/getFileList")
+    public Respone getFileList(ProjectResource projectResource){
         List<ProjectResource> list = projectResourceService.list(new QueryWrapper<ProjectResource>().eq("pid", projectResource.getPid()));
         return new Respone(200,"获取成功",list);
     }
