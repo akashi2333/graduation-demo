@@ -26,7 +26,7 @@ CREATE TABLE `chat` (
   `message` varchar(255) DEFAULT NULL,
   `send_date` datetime DEFAULT NULL,
   `send_all` tinyint(1) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `idea` */
 
@@ -35,20 +35,20 @@ DROP TABLE IF EXISTS `idea`;
 CREATE TABLE `idea` (
   `id` int(11) DEFAULT NULL,
   `idea` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `project` */
 
 DROP TABLE IF EXISTS `project`;
 
 CREATE TABLE `project` (
-  `pid` int(11) NOT NULL,
+  `pid` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `state` varchar(255) DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   PRIMARY KEY (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `project_exit` */
 
@@ -57,7 +57,7 @@ DROP TABLE IF EXISTS `project_exit`;
 CREATE TABLE `project_exit` (
   `pid` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `project_join` */
 
@@ -66,7 +66,7 @@ DROP TABLE IF EXISTS `project_join`;
 CREATE TABLE `project_join` (
   `pid` int(11) DEFAULT NULL,
   `uid` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `project_resource` */
 
@@ -77,20 +77,37 @@ CREATE TABLE `project_resource` (
   `uid` int(11) DEFAULT NULL,
   `resource_name` varchar(255) DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `team` */
 
 DROP TABLE IF EXISTS `team`;
 
 CREATE TABLE `team` (
-  `tid` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` int(11) DEFAULT NULL,
+  `tid` int(11) NOT NULL,
+  `uid` int(11) NOT NULL,
   `isowner` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `brief` varchar(255) DEFAULT NULL,
-  `timestamp` datetime DEFAULT NULL,
-  PRIMARY KEY (`tid`)
+  `timestamp` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `team_exit` */
+
+DROP TABLE IF EXISTS `team_exit`;
+
+CREATE TABLE `team_exit` (
+  `tid` int(11) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*Table structure for table `team_join` */
+
+DROP TABLE IF EXISTS `team_join`;
+
+CREATE TABLE `team_join` (
+  `tid` int(11) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Table structure for table `team_resource` */
@@ -102,7 +119,7 @@ CREATE TABLE `team_resource` (
   `uid` int(11) DEFAULT NULL,
   `resource_name` varchar(255) DEFAULT NULL,
   `timestamp` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `todo` */
 
@@ -111,7 +128,7 @@ DROP TABLE IF EXISTS `todo`;
 CREATE TABLE `todo` (
   `id` int(11) DEFAULT NULL,
   `todo` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `user` */
 
@@ -120,11 +137,11 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(10) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `e_mail` varchar(255) DEFAULT NULL,
-  `role` varchar(255) DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `e_mail` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `role` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `user_project` */
 

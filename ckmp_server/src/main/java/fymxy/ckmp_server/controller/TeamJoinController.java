@@ -6,6 +6,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.TeamJoin;
 import fymxy.ckmp_server.service.TeamJoinService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
  */
 @RestController
 @RequestMapping("/team-join")
+@Api(tags = "team申请 进进进 的增删查")
 public class TeamJoinController {
 
     @Autowired
@@ -74,7 +76,7 @@ public class TeamJoinController {
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamJoin exit : teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("uid", teamJoin.getUid()))) {
-            res.add(exit.getUid());
+            res.add(exit.getTid());
         }
         return new Respone(200,"处理成功",res);
     }

@@ -76,7 +76,7 @@ public class TeamExitController {
         ArrayList<Integer> res = new ArrayList<>();
         for (TeamExit exit : teamExitService.list(new QueryWrapper<TeamExit>()
                 .eq("uid", teamExit.getUid()))) {
-            res.add(exit.getUid());
+            res.add(exit.getTid());
         }
         return new Respone(200,"处理成功",res);
     }

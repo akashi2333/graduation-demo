@@ -37,13 +37,16 @@ public class TeamController {
     TeamService teamService;
 
     @ApiOperation(value = "新建team操作")
-    @ApiOperationSupport(ignoreParameters = {"team.tid","team.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"team.tid","team.timestamp","team.isowner"})
     @ApiResponses({
             @ApiResponse(code = 200, message = "创建成功")
     })
     @PostMapping("/add")
     private Respone add(@RequestBody Team team) {
         team.setTimestamp(new Date());
+        int count = teamService.count();
+        System.out.println(count);
+        team.setTid(count+1);
         //可以没有，看前端
         team.setIsowner(1);
         teamService.save(team);
@@ -56,7 +59,7 @@ public class TeamController {
     })
     @PutMapping("/update")
     private Respone update(@RequestBody Team team) {
-        if (teamService.update(new UpdateWrapper<>(team))) {
+        if (teamService.updateById(team)) {
             return new Respone(200, "修改成功", null);
         } else {
             return new Respone(400, "修改失败", null);
@@ -109,6 +112,24 @@ public class TeamController {
         // TODO: 2022/4/5 团队主人离开团队怎么办
         teamService.remove(new QueryWrapper<Team>().eq("uid",team.getUid()).eq("tid",team.getTid()));
         return new Respone(200,"删除成功",null);
+    }
+
+    @ApiOperation(value = "某人加入团队")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "加入成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {
+            "team.isowner",
+            "team.name",
+            "team.brief",
+            "team.timestamp"})
+    @PostMapping("/delete")
+    private Respone addMember(@RequestBody Team team){
+        Team joinTeam = teamService.getOne(new QueryWrapper<Team>().eq("tid",team.getTid()));
+        joinTeam.setIsowner(0);
+        joinTeam.setUid(team.getUid());
+        teamService.save(joinTeam);
+        return new Respone(200,"加入成功",null);
     }
 
 

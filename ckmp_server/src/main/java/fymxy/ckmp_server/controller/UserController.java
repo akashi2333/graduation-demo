@@ -1,5 +1,7 @@
 package fymxy.ckmp_server.controller;
 
+import fymxy.ckmp_server.entity.Team;
+import fymxy.ckmp_server.service.TeamService;
 import org.slf4j.Logger;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
@@ -36,6 +38,8 @@ public class UserController {
     ProjectService projectService;
     @Autowired
     UserProjectService userProjectService;
+    @Autowired
+    TeamService teamService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -98,17 +102,29 @@ public class UserController {
     }
 
     @ApiOperation(value = "获得加入的群 返回群list")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "查找成功")
+    })
+    @GetMapping("/getProjects")
+    public Respone getProjects(@RequestParam int uid){
+        //成员列表
+        List<Project> members = new ArrayList<>();
+        for (UserProject joinProject : userProjectService.list(new QueryWrapper<UserProject>().eq("uid", uid))) {
+            members.add(projectService.getById(joinProject.getPid()));
+        }
+        return new Respone(200,"查找成功",members);
+    }
+
+    @ApiOperation(value = "获得加入的团队 返回团队list")
     @ApiOperationSupport(ignoreParameters = {"userProject.pid"})
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功")
     })
-    @GetMapping("/getMembers")
-    public Respone getprojects(UserProject userProject){
+    @GetMapping("/getTeams")
+    public Respone getTeams(@RequestParam int uid){
         //成员列表
-        List<Project> members = new ArrayList<>();
-        for (UserProject joinProject : userProjectService.list(new QueryWrapper<UserProject>().eq("uid", userProject.getUid()))) {
-            members.add(projectService.getById(joinProject.getPid()));
-        }
+        List<Team> members = new ArrayList<>();
+        members.addAll(teamService.list(new QueryWrapper<Team>().eq("uid", uid)));
         return new Respone(200,"查找成功",members);
     }
 }

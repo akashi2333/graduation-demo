@@ -72,7 +72,7 @@ public class ProjectJoinController {
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectJoin exit : projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("uid", projectJoin.getUid()))) {
-            res.add(exit.getUid());
+            res.add(exit.getPid());
         }
         return new Respone(200,"处理成功",res);
     }

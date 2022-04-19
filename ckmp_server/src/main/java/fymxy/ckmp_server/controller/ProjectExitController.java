@@ -73,7 +73,7 @@ public class ProjectExitController {
         ArrayList<Integer> res = new ArrayList<>();
         for (ProjectExit exit : projectExitService.list(new QueryWrapper<ProjectExit>()
                 .eq("uid", projectExit.getUid()))) {
-            res.add(exit.getUid());
+            res.add(exit.getPid());
         }
         return new Respone(200,"处理成功",res);
     }

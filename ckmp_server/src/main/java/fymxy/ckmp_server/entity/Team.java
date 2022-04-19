@@ -30,7 +30,6 @@ public class Team implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "团队标识",required = true)
-    @TableId(type = IdType.AUTO)
     private Integer tid;
 
     @ApiModelProperty(value = "用户id",required = true)

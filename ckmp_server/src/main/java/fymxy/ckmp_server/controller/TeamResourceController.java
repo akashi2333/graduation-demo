@@ -74,12 +74,13 @@ public class TeamResourceController {
                 .eq("resource_name", teamResource.getResourceName())
         );
 
-        File file = new File(one.getResourceName());
+        File file = new File(basePath +one.getResourceName());
         OutputStream outputStream=null;
         InputStream inputStream=null;
         BufferedInputStream bufferedInputStream=null;
         byte[] bytes=new byte[1024];
         // 获取输出流
+        // TODO: 2022/4/18 此时返回的header的文件名存在中文为乱码的情况
         response.setHeader("Content-Disposition", "attachment;filename=" +  new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
 
         //存在报错
@@ -99,7 +100,7 @@ public class TeamResourceController {
         return new Respone(200,"下载成功",null);
     }
 
-    @ApiOperation(value = "获取文件列表")
+    @ApiOperation(value = "获取文件列表，根据tid")
     @ApiResponses({
             @ApiResponse(code = 200,message = "获取成功")
     })
