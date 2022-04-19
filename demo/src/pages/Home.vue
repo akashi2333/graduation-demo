@@ -32,7 +32,7 @@
         <div class="resource-top">常用资源</div>
         <ul class="list">
           <li class="list-item"
-              v-for="resource in resources"
+              v-for="resource in goodResources"
               :key="resource.name">
             <div class="resource-left">
               <i class="el-icon-caret-right"
@@ -46,7 +46,7 @@
         <div class="team-top">优秀团队</div>
         <ul class="list">
           <li class="list-item"
-              v-for="team in teams"
+              v-for="team in goodTeams"
               :key="team.name">
             <div class="team-left">
               <i class="el-icon-caret-right"
@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import { getGoodTeams, getGoodResources, getAllNotices } from '../api/Index'
 export default {
   name: 'Home',
   data () {
@@ -72,48 +73,83 @@ export default {
         { url: require("../assets/3.jpg") },
         { url: require("../assets/4.jpg") }
       ],
-      teams: [
-        { name: "Meiko" },
-        { name: "Scout" },
-        { name: "Viper" },
-        { name: "Jiejie" },
-        { name: "Flandre" },
-        { name: "Xiaoxiang" },
-        { name: "Junjia" },
-        { name: "Hope" },
-        { name: "Clearlove" },
-        { name: "Deft" }
+      goodTeams: [
+        // { name: "Meiko" },
+        // { name: "Scout" },
+        // { name: "Viper" },
+        // { name: "Jiejie" },
+        // { name: "Flandre" },
+        // { name: "Xiaoxiang" },
+        // { name: "Junjia" },
+        // { name: "Hope" },
+        // { name: "Clearlove" },
+        // { name: "Deft" }
       ],
       notices: [
-        { name: "EDG2020年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2020年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2021年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2021年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2022年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2022年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2023年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2023年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2024年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        { name: "EDG2024年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2020年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2020年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2021年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2021年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2022年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2022年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2023年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2023年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2024年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        // { name: "EDG2024年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
       ],
-      resources: [
-        { name: "EDG-Meiko精彩操作合集" },
-        { name: "EDG-Scout精彩操作合集" },
-        { name: "EDG-Flandre精彩操作合集" },
-        { name: "EDG-Jiejie精彩操作合集" },
-        { name: "EDG-Viper精彩操作合集" },
-        { name: "EDG-Xiaoxiang精彩操作合集" },
-        { name: "EDG-Junjia精彩操作合集" },
-        { name: "EDG-Hope精彩操作合集" },
-        { name: "EDG-Clearlove精彩操作合集" },
-        { name: "EDG-Deft精彩操作合集" }
+      goodResources: [
+        // { name: "EDG-Meiko精彩操作合集" },
+        // { name: "EDG-Scout精彩操作合集" },
+        // { name: "EDG-Flandre精彩操作合集" },
+        // { name: "EDG-Jiejie精彩操作合集" },
+        // { name: "EDG-Viper精彩操作合集" },
+        // { name: "EDG-Xiaoxiang精彩操作合集" },
+        // { name: "EDG-Junjia精彩操作合集" },
+        // { name: "EDG-Hope精彩操作合集" },
+        // { name: "EDG-Clearlove精彩操作合集" },
+        // { name: "EDG-Deft精彩操作合集" }
       ]
     };
   },
   methods: {
-
+    getNotices () {
+      var _this = this
+      getAllNotices().then(res => {
+        if (res.code === 200) {
+          console.log(res.data)
+          _this.notices = res.data
+        } else {
+          console.log(res.msg)
+        }
+      })
+    },
+    getTeams () {
+      var _this = this
+      getGoodTeams().then(res => {
+        if (res.code === 200) {
+          console.log(res.data)
+          _this.teams = res.data
+        } else {
+          console.log(res.msg)
+        }
+      })
+    },
+    getResources () {
+      var _this = this
+      getGoodResources().then(res => {
+        if (res.code === 200) {
+          console.log(res.data)
+          _this.goodResources = res.data
+        } else {
+          console.log(res.msg)
+        }
+      })
+    }
   },
   mounted () {
+    this.getNotices()
+    this.getTeams()
+    this.getResources()
   }
 }
 </script>

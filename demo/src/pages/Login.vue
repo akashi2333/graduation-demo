@@ -67,27 +67,28 @@ export default {
   computed: {
     ...mapGetters([
       'userId',
-      'userName',
       'loginState'
     ])
   },
   methods: {
     submitForm () {
+      var _this = this
       login({
-        name: this.ruleForm.userName,
-        email: this.ruleForm.email,
-        password: this.ruleForm.password
+        username: _this.ruleForm.userName,
+        email: _this.ruleForm.email,
+        password: _this.ruleForm.password
       }).then(res => {
-        if (res.code === 1) {
-          this.notify('登录成功', 'success')
-          this.$store.commit('setUserId', res.data)
-          this.$store.commit('setLoginState', true)
-          this.$store.commit('set')
+        if (res.code === 200) {
+          _this.$message('登录成功')
+          _this.$store.commit('setUserId', res.data)
+          _this.$store.commit('setUserName', _this.ruleForm.userName)
+          _this.$store.commit('setLoginState', true)
+          _this.$store.commit('set')
           setTimeout(function () {
-            this.$router.push({ path: '/' })
+            _this.$router.push({ path: '/' })
           }, 2000)
         } else {
-          this.notify(res.msg, 'error')
+          _this.$message(res.msg)
         }
       })
     },
