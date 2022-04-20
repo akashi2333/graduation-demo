@@ -71,11 +71,11 @@ public class TeamController {
             @ApiResponse(code = 200, message = "查询成功")
     })
     @ApiOperationSupport(ignoreParameters = {
-            "team.tid",
-            "team.isowner",
-            "team.name",
-            "team.brief",
-            "team.timestamp"})
+            "tid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp"})
     @GetMapping("/getMyTeamDetail")
     private Respone getMyTeamDetail( Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()).eq("isowner", 1));
@@ -87,11 +87,11 @@ public class TeamController {
             @ApiResponse(code = 200, message = "查询成功")
     })
     @ApiOperationSupport(ignoreParameters = {
-            "team.tid",
-            "team.isowner",
-            "team.name",
-            "team.brief",
-            "team.timestamp"})
+            "tid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp"})
     @GetMapping("/getJoinTeamDetail")
     private Respone getJoinTeamDetail(Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()));
@@ -138,11 +138,11 @@ public class TeamController {
             @ApiResponse(code = 200,message = "查询成功")
     })
     @ApiOperationSupport(ignoreParameters = {
-            "team.uid",
-            "team.isowner",
-            "team.name",
-            "team.brief",
-            "team.timestamp"})
+            "uid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp"})
     @GetMapping("/getByTid")
     private Respone getByTid(Team team){
         Team byId = teamService.getById(team.getTid());

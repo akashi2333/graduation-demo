@@ -65,7 +65,7 @@ public class TeamResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "下载成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"timestamp"})
     @GetMapping("/download")
     public Respone downloadFile(TeamResource teamResource , HttpServletResponse response) throws IOException {
         TeamResource one = teamResourceService.getOne(new QueryWrapper<TeamResource>()
@@ -104,7 +104,10 @@ public class TeamResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "获取成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.uid","teamResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {
+            "resourceName",
+            "uid",
+            "timestamp"})
     @GetMapping("/getFileList")
     public Respone getFileList(TeamResource teamResource){
         List<TeamResource> list = teamResourceService.list(new QueryWrapper<TeamResource>().eq("tid", teamResource.getTid()));

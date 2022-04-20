@@ -52,7 +52,7 @@ public class TodoController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"todo.todo"})
+    @ApiOperationSupport(ignoreParameters = {"todo"})
     @GetMapping("getById")
     private Respone getById(Todo todo){
         ArrayList<String> list = new ArrayList<>();

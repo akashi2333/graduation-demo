@@ -52,7 +52,7 @@ public class ProjectExitController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectExit.uid"})
+    @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByProjectId")
     private Respone getByProjectId( ProjectExit projectExit){
         ArrayList<Integer> res = new ArrayList<>();
@@ -67,7 +67,7 @@ public class ProjectExitController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectExit.pid"})
+    @ApiOperationSupport(ignoreParameters = {"pid"})
     @GetMapping("/getByUserId")
     private Respone getByUserId(ProjectExit projectExit){
         ArrayList<Integer> res = new ArrayList<>();

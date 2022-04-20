@@ -57,7 +57,7 @@ public class UserProjectController {
     }
 
     @ApiOperation(value = "获得群成员")
-    @ApiOperationSupport(ignoreParameters = {"userProject.uid"})
+    @ApiOperationSupport(ignoreParameters = {"uid"})
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功 返回群成员")
     })

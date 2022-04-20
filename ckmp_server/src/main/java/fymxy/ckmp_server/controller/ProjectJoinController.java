@@ -51,7 +51,7 @@ public class ProjectJoinController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectJoin.uid"})
+    @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByProjectId")
     private Respone getByProjectId( ProjectJoin projectJoin){
         ArrayList<Integer> res = new ArrayList<>();
@@ -66,7 +66,7 @@ public class ProjectJoinController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectJoin.pid"})
+    @ApiOperationSupport(ignoreParameters = {"pid"})
     @GetMapping("/getByUserId")
     private Respone getByUserId( ProjectJoin projectJoin){
         ArrayList<Integer> res = new ArrayList<>();

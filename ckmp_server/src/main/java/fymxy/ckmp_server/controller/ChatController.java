@@ -41,7 +41,7 @@ public class ChatController {
     }
 
     @ApiOperation(value = "查询聊天记录，返回结果封装在data中")
-    @ApiOperationSupport(ignoreParameters = {"chat.sendDate","chat.sid","chat.message"})
+    @ApiOperationSupport(ignoreParameters = {"sendDate","sid","message"})
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功 返回聊天记录")
     })

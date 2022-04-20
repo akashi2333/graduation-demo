@@ -55,7 +55,7 @@ public class TeamExitController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamExit.uid"})
+    @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByTeamId")
     private Respone getByTeamId(TeamExit teamExit){
         ArrayList<Integer> res = new ArrayList<>();
@@ -70,7 +70,7 @@ public class TeamExitController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamExit.tid"})
+    @ApiOperationSupport(ignoreParameters = {"tid"})
     @GetMapping("/getByUserId")
     private Respone getByUserId(TeamExit teamExit){
         ArrayList<Integer> res = new ArrayList<>();

@@ -69,7 +69,7 @@ public class ProjectResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "下载成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"timestamp"})
     @GetMapping("/download")
     public Respone downloadFile(ProjectResource projectResource , HttpServletResponse response) throws IOException {
         ProjectResource one = projectResourceService.getOne(new QueryWrapper<ProjectResource>()
@@ -108,7 +108,10 @@ public class ProjectResourceController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "获取成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.uid","projectResource.timestamp"})
+    @ApiOperationSupport(ignoreParameters = {
+            "resourceName",
+            "uid",
+            "timestamp"})
     @GetMapping("/getFileList")
     public Respone getFileList(ProjectResource projectResource){
         List<ProjectResource> list = projectResourceService.list(new QueryWrapper<ProjectResource>().eq("pid", projectResource.getPid()));

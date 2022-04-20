@@ -48,7 +48,7 @@ public class IdeaController {
     }
 
     @ApiOperation(value = "查询idea操作，结果以list字符串形式")
-    @ApiOperationSupport(ignoreParameters ="idea.idea")
+    @ApiOperationSupport(ignoreParameters ="idea")
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功")
     })

@@ -44,12 +44,11 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @ApiOperation(value = "登录操作")
-    @ApiOperationSupport(ignoreParameters = {"user.id","user.eMail"})
+    @ApiOperationSupport(ignoreParameters = {"id","EMail"})
     @ApiResponses({
             @ApiResponse(code = 400,message = "登录失败"),
             @ApiResponse(code = 200,message = "登录成功 返回用戶id")
     })
-
     @GetMapping("/login")
     private Respone login(User user){
         QueryWrapper<User> wrapper = new QueryWrapper<>();

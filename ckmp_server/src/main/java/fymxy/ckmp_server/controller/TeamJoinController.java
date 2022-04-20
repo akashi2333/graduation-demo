@@ -55,7 +55,7 @@ public class TeamJoinController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamJoin.uid"})
+    @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByTeamId")
     private Respone getByTeamId(TeamJoin teamJoin){
         ArrayList<Integer> res = new ArrayList<>();
@@ -70,7 +70,7 @@ public class TeamJoinController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"teamJoin.tid"})
+    @ApiOperationSupport(ignoreParameters = {"tid"})
     @GetMapping("/getByUserId")
     private Respone getByUserId( TeamJoin teamJoin){
         ArrayList<Integer> res = new ArrayList<>();
