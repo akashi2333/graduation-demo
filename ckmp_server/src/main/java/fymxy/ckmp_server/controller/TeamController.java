@@ -8,6 +8,7 @@ import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.Project;
 import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.UserProject;
+import fymxy.ckmp_server.service.ProjectService;
 import fymxy.ckmp_server.service.TeamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,10 +16,15 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.RescaleOp;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -35,6 +41,8 @@ import java.util.List;
 public class TeamController {
     @Autowired
     TeamService teamService;
+    @Autowired
+    ProjectService projectService;
 
     @ApiOperation(value = "新建team操作")
     @ApiOperationSupport(ignoreParameters = {"team.tid","team.timestamp","team.isowner"})
@@ -42,11 +50,29 @@ public class TeamController {
             @ApiResponse(code = 200, message = "创建成功")
     })
     @PostMapping("/add")
-    private Respone add(@RequestBody Team team) {
+    private Respone add(@RequestBody MultipartFile file,Team team) {
         team.setTimestamp(new Date());
         int count = teamService.count();
+
         System.out.println(count);
         team.setTid(count+1);
+
+        InputStream ins;
+        try {
+            ins = file.getInputStream();
+            byte[] buffer=new byte[1024];
+            int len=0;
+            ByteArrayOutputStream bos=new ByteArrayOutputStream();
+            while((len=ins.read(buffer))!=-1){
+                bos.write(buffer,0,len);
+            }
+            bos.flush();
+            team.setImg( bos.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         //可以没有，看前端
         team.setIsowner(1);
         teamService.save(team);
@@ -133,7 +159,7 @@ public class TeamController {
     }
 
 
-    @ApiOperation(value = "根据tid查询")
+    @ApiOperation(value = "根据tid查询团队详情")
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功")
     })
@@ -145,7 +171,27 @@ public class TeamController {
             "timestamp"})
     @GetMapping("/getByTid")
     private Respone getByTid(Team team){
-        Team byId = teamService.getById(team.getTid());
+        Team byId = teamService.getOne(new QueryWrapper<Team>().eq("tid",team.getTid()));
         return new Respone(200,"查询成功",byId);
+    }
+
+
+    @ApiOperation(value = "根据tid查询拥有的project（下属成员拥有的）")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "查询成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {
+            "uid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp"})
+    @GetMapping("/getProjectByTid")
+    private Respone getProjectByTid(Team team){
+        HashSet<Project> ans = new HashSet<>();
+        for (Team tid : teamService.list(new QueryWrapper<Team>().eq("tid",team.getTid()))) {
+            ans.addAll(projectService.list(new QueryWrapper<Project>(  ).eq("uid",tid.getUid())));
+        }
+        return new Respone(200,"查询成功",ans);
     }
 }

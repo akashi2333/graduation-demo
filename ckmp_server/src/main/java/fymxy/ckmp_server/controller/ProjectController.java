@@ -12,7 +12,11 @@ import fymxy.ckmp_server.service.UserProjectService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +43,23 @@ public class ProjectController {
             @ApiResponse(code = 200,message = "创建成功")
     })
     @PostMapping("/add")
-    private Respone add(@RequestBody Project project){
+    private Respone add(@RequestBody MultipartFile file, Project project){
+
+        InputStream ins;
+        try {
+            ins = file.getInputStream();
+            byte[] buffer=new byte[1024];
+            int len=0;
+            ByteArrayOutputStream bos=new ByteArrayOutputStream();
+            while((len=ins.read(buffer))!=-1){
+                bos.write(buffer,0,len);
+            }
+            bos.flush();
+            project.setImg( bos.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         project.setTimestamp(new Date());
         projectService.save(project);
         //插入到群-成员关系表

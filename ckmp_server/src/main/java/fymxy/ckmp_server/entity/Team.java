@@ -49,4 +49,7 @@ public class Team implements Serializable {
     @ApiModelProperty(value = "时间")
     private Date timestamp;
 
+    @ApiModelProperty(value = "图片",required = true)
+    private byte[] img;
+
 }

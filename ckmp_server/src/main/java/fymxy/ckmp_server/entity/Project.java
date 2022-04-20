@@ -48,5 +48,8 @@ public class Project implements Serializable {
     @TableField("datetime")
     private Date timestamp;
 
+    @ApiModelProperty(value = "图片",required = true)
+    private byte[] img;
+
 
 }
