@@ -194,4 +194,22 @@ public class TeamController {
         }
         return new Respone(200,"查询成功",ans);
     }
+
+    @ApiOperation(value = "根据所有team")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "查询成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {
+            "uid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp"})
+    @GetMapping("/getProject")
+    private Respone getProject(){
+        HashSet<Team> ans = new HashSet<>
+                (teamService.list(new QueryWrapper<Team>()
+                        .eq("isowner", "1")));
+        return new Respone(200,"查询成功",ans);
+    }
 }

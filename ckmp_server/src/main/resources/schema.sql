@@ -47,6 +47,7 @@ CREATE TABLE `project` (
   `name` varchar(255) DEFAULT NULL,
   `state` varchar(255) DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
+  `img` mediumblob,
   PRIMARY KEY (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
@@ -89,7 +90,8 @@ CREATE TABLE `team` (
   `isowner` int(11) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `brief` varchar(255) DEFAULT NULL,
-  `timestamp` datetime DEFAULT NULL
+  `timestamp` datetime DEFAULT NULL,
+  `img` mediumblob
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `team_exit` */
