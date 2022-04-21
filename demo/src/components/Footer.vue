@@ -8,8 +8,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .footer {
+  text-align: center;
   font-size: 15px;
   padding: 20px 0;
 }

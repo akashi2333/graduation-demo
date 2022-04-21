@@ -6,9 +6,12 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import store from '../src/store/index'
+import LemonIMUI from 'lemon-imui';
+import 'lemon-imui/dist/index.css';
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.use(LemonIMUI)
 
 /* eslint-disable no-new */
 new Vue({

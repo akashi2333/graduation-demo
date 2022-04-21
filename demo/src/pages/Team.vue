@@ -12,13 +12,67 @@
              style="font-size: 20px"></i>
         </div>
       </div>
+      <el-button type="text"
+                 class="new-team"
+                 icon="el-icon-plus"
+                 @click="dialogFormVisible = true">新建团队</el-button>
+      <el-dialog title="新建团队"
+                 :visible.sync="dialogFormVisible"
+                 width="50%">
+        <el-form label-position="right"
+                 label-width="20%"
+                 :model="tempTeam"
+                 :rules="rules"
+                 ref="tempTeam">
+          <el-form-item label="团队名称"
+                        prop="name">
+            <el-input v-model="tempTeam.name"
+                      placeholder="请输入团队名称"></el-input>
+          </el-form-item>
+          <el-form-item label="团队图片"
+                        prop="file">
+            <el-upload action="uploadAction"
+                       list-type="picture-card"
+                       :on-remove="handleRemove"
+                       :limit="1"
+                       :show-file-list="true"
+                       name="img"
+                       ref="upload"
+                       :data="tempTeam"
+                       accept="image/png,image/gif,image/jpg,image/jpeg"
+                       :on-exceed="handleExceed"
+                       :auto-upload="false"
+                       :on-error="uploadError"
+                       :before-upload="handleBeforeUpload"
+                       :on-change="changeFile">
+              <i class="el-icon-plus"></i>
+            </el-upload>
+            <el-dialog :visible.sync="dialogVisible">
+              <img width="50px"
+                   :src="dialogImageUrl"
+                   alt="">
+            </el-dialog>
+          </el-form-item>
+          <el-form-item label="团队介绍"
+                        prop="brief">
+            <el-input v-model="tempTeam.brief"
+                      placeholder="请输入团队介绍"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer"
+              class="dialog-footer">
+          <el-button @click="cancel('tempTeam')">取 消</el-button>
+          <el-button type="primary"
+                     @click="createTeam('tempTeam')">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
     <div class="team-list">
       <ul class="content">
         <li class="content-item"
             v-for="team in teamList.slice((currentPage-1)*pageSize,currentPage*pageSize)"
             :key="team.tid">
-          <img :src="team.pic"
+          <img :src="team.file"
                alt=""
                class="image"
                style="display:block"
@@ -44,66 +98,37 @@
 </template>
 
 <script>
-import { joinTeam, getTeams } from '../api/Index'
+import { joinTeam, getTeams, newTeam } from '../api/Index'
 import { mapGetters } from 'vuex'
 export default {
   name: "Team",
   data () {
     return {
+      dialogFormVisible: false,
+      dialogVisible: false,
       keywaords: '',
       pageSize: 12,
       currentPage: 1,
-      teamList: [
-        {
-          tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
-          tid: 1,
-          resources: [{
-            rid: 1, name: "Meiko", time: "2022.2.17", isowner: "Scout", intruducation: "gg",
-            comments: [{ cid: 1, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯" },
-            { cid: 2, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯" }]
-          },
-          { rid: 2, name: "Scout", time: "2022.2.17" }, { rid: 3, name: "Jiejie", time: "2022.2.17" }, { rid: 4, name: "Flandre", time: "2022.2.17" }, { rid: 5, name: "Viper", time: "2022.2.17" }],
-          projects: [{
-            pid: 1,
-            pic: require("../assets/5.jpg"),
-            tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
-            name: "Meiko",
-            isowner: "Meiko",
-            time: "2022.2.17",
-            intruducation: "wgg",
-            resources: [{
-              rid: 6, name: "Meikovo", time: "2022.2.17", isowner: "Scout", intruducation: "gg",
-              comments: [{ cid: 1, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯" },
-              { cid: 2, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯" }]
-            },
-            { rid: 2, name: "Scout", time: "2022.2.17" }, { rid: 3, name: "Jiejie", time: "2022.2.17" }, { rid: 4, name: "Flandre", time: "2022.2.17" }, { rid: 5, name: "Viper", time: "2022.2.17" }],
-            members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }]
-          },
-          { pid: 2, name: "Scout", time: "2022.2.17" },
-          { pid: 3, name: "Jiejie", time: "2022.2.17" },
-          { pid: 4, name: "Flandre", time: "2022.2.17" },
-          { pid: 5, name: "Viper", time: "2022.2.17" }],
-          name: "Meiko",
-          pic: require("../assets/5.jpg"),
-          time: "2022.2.17",
-          isowner: "Meiko",
-          members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }],
-          intruducation: "EDG战队呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪"
-        },
-        { tid: 2, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Scout", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 3, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Flandre", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 4, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Viper", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 5, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Jiejie", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 6, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Xiaoxiang", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 7, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Junjia", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 8, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Hope", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 9, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Clearlove", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 10, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Deft", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 11, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Pawn", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 12, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Alori", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 13, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Alori", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-        { tid: 15, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Alori", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" }
-      ]
+      teamList: [],
+      tempTeam: {
+        name: '',
+        img: '',
+        brief: ''
+      },
+      rules: {
+        name: [{
+          required: true,
+          message: "请输入团队名称",
+          trigger: "blur"
+        }],
+        brief: [{
+          required: true,
+          message: "请输入团队介绍",
+          trigger: "blur"
+        }]
+      },
+      dialogImageUrl: '',
+      uploadFiles: ''
     }
   },
   computed: {
@@ -112,19 +137,89 @@ export default {
     ])
   },
   mounted () {
-    this.getAllTeams()
+    // this.getAllTeams()
   },
   methods: {
+    handleBeforeUpload (file) {
+      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
+        'image/jpeg')) {
+        this.$notify.warning({
+          title: '警告',
+          message: '请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片'
+        })
+      }
+      let size = file.size / 1024 / 1024 / 2
+      if (size > 2) {
+        this.$notify.warning({
+          title: '警告',
+          message: '图片大小必须小于2M'
+        })
+      }
+
+    },
+    handleExceed (files, fileList) {
+      this.$message.error("上传图片不能超过1张!");
+    },
+    handleRemove (file, fileList) {
+      this.$message.error("删除成功!");
+    },
+    // 图片上传失败时
+    uploadError () {
+      this.$message.error("图片上传失败!");
+    },
+    changeFile (file, fileList) {
+      this.uploadFiles = fileList[0].raw
+    },
+    createTeam (formName) {
+      this.$refs[formName].validate((valid) => {
+        let fd = new FormData();
+        fd.append('uid', this.userId)
+        fd.append('name', this.tempTeam.name);
+        fd.append('brief', this.tempTeam.brief);
+        fd.append('file', this.uploadFiles);
+
+        if (valid) {
+          newTeam(fd).then(res => {
+            if (res.code === 200) {
+              this.dialogFormVisible = false
+              this.$message({
+                message: res.msg,
+                type: 'success'
+              })
+              //新增完清空表单内容
+              setTimeout(() => {
+                this.$refs.tempTeam.resetFields();
+              }, 200)
+              this.reload()
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        } else {
+          this.message({
+            message: "error",
+            type: 'error'
+          })
+        }
+      })
+    },
+    // 取消
+    cancel (formName) {
+      this.dialogFormVisible = false
+      this.$refs[formName].resetFields()
+    },
     handleCurrentChange (val) {
       this.currentPage = val
     },
-    // getAllTeams () {
-    //   getTeams().then(res => {
-    //     this.teamList = res
-    //   }).catch(err => {
-    //     console.log(err)
-    //   })
-    // },
+    getAllTeams () {
+      getTeams().then(res => {
+        this.teamList = res
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     goTeam (item) {
       this.$store.commit('setTempTeamList', item);
       this.$router.push({ path: `/TeamDetail/${item.tid}` });
@@ -150,19 +245,52 @@ export default {
 </script>
 
 <style scoped>
+.avatar-uploader {
+  margin-top: 20px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  width: 178px;
+  height: 178px;
+}
+
+.avatar-uploader:hover {
+  border-color: #409eff;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: flex;
+}
 .team {
   margin: 10px 30px 0 30px;
   background-color: white;
 }
 .title {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 0 1%;
   height: 40px;
   background-color: #409eff;
   font-size: 15px;
   color: white;
+}
+.new-team {
+  color: white;
+  font-size: 15px;
 }
 .search {
   display: flex;
