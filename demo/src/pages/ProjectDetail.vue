@@ -130,6 +130,94 @@
             </div>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="项目任务管理">
+          <div class="resource">
+            <div class="resource-manage">
+              <div class="resource-manage-top">项目任务</div>
+              <ul class="list">
+                <li v-for="(task,index) in tasks.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                    :key="task.taId"
+                    class="list-item">
+                  <div class="list-left">
+                    <i class="el-icon-caret-right"
+                       style="color:#409EFF; font-size:25px"></i>
+                    <div class="resource-name">{{task.content}}</div>
+                  </div>
+                  <div class="list-center">
+                    {{task.time}}
+                  </div>
+                  <div class="list-center">
+                    {{task.deadline}}
+                  </div>
+                  <div class="list-center">
+                    <span v-for="member in task.members"
+                          :key="member.index">{{member}} </span>
+                  </div>
+                  <div class="list-right">
+                    <el-button class="finish"
+                               ref="finish"
+                               type="primary"
+                               size="small"
+                               @click="finishTask(index)">完成</el-button>
+                    <el-button style="margin-left:0"
+                               type="primary"
+                               size="small"
+                               @click="edit(task)">编辑</el-button>
+                    <el-dialog title="编辑任务"
+                               :visible.sync="dialogVisible"
+                               width="50%"
+                               :before-close="handleClose">
+                      <el-form label-position="right"
+                               label-width="15%">
+                        <el-form-item label="任务内容">
+                          <el-input v-model="tempTask.content"></el-input>
+                        </el-form-item>
+                        <el-form-item label="任务成员">
+                          <el-select v-model="tempTask.members"
+                                     multiple
+                                     placeholder="请选择"
+                                     style="width:100%">
+                            <el-option v-for="member in members"
+                                       :key="member.uid"
+                                       :label="member.name"
+                                       :value="member.uid">
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-form-item label="任务时间">
+                          <el-date-picker v-model="tempTask.time"
+                                          value-format="yyyy-MM-dd"
+                                          type="daterange"
+                                          range-separator="至"
+                                          start-placeholder="开始日期"
+                                          end-placeholder="结束日期">
+                          </el-date-picker>
+                        </el-form-item>
+                      </el-form>
+                      <span slot="footer"
+                            class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取 消</el-button>
+                        <el-button type="primary"
+                                   @click="saveTask()">确 定</el-button>
+                      </span>
+                    </el-dialog>
+                    <el-button type="primary"
+                               size="small"
+                               @click="deleteATask(task)">删除</el-button>
+                  </div>
+                </li>
+              </ul>
+              <el-pagination class="bottom-bottom"
+                             background
+                             @current-change="handleCurrentChange"
+                             layout="total, prev, pager, next"
+                             :current-page="currentPage"
+                             :page-size="pageSize"
+                             :total="tasks.length">
+              </el-pagination>
+            </div>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -137,7 +225,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, getAllResources, getAllTempMembers } from '../api/Index';
+import { deletetask, deleteTaskFromList, editTask, getAllTasks, getPAllMembers, getPAllResources, getPAllTempMembers } from '../api/Index';
 
 export default {
   name: 'ProjectDetail',
@@ -149,14 +237,23 @@ export default {
       pid: 0,
       project: {},
       members: [],
+      tempMembers: [],
       resources: [],
-      tempMembers: []
+      tasks: [],
+      tempMembers: [],
+      tempTask: {
+        content: "",
+        time: "",
+        members: []
+      },
+      dialogVisible: false
     }
   },
   computed: {
     ...mapGetters([
       'tempProjectList',
-      'userId'
+      'userId',
+      'tempTaskList'
     ])
   },
   mounted () {
@@ -169,11 +266,69 @@ export default {
     this.members = this.tempProjectList.members
     this.tempMembers = this.tempProjectList.tempMembers
     this.resources = this.tempProjectList.resources
+    this.tasks = this.tempProjectList.tasks
     // this.getMembers(this.pid)
     // this.getTempMembers(this.pid)
     // this.getResources(this.pid)
+    //this.getTasks(this.pid)
   },
   methods: {
+    saveTask () {
+      editTask({
+        content: this.tempTask.content,
+        time: this.tempTask.time,
+        members: this.tempTask.members
+      }).then(res => {
+        if (res.code === 200) {
+          this.dialogVisible = false
+          this.$message("修改成功")
+          this.getTasks(this.pid)
+        }
+      })
+    },
+    handleClose (done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => { });
+    },
+    edit (task) {
+      this.dialogVisible = true
+      this.$store.commit('setTempTaskList', task)
+      this.tempTask.content = this.tempTaskList.content
+      this.tempTask.time = this.tempTaskList.time
+      this.tempTask.members = this.tempTaskList.members
+    },
+    finishTask (index) {
+      console.log(document.getElementsByClassName("finish")[index].innerHTML)
+      if (document.getElementsByClassName("finish")[index].innerHTML === "已完成") {
+        document.getElementsByClassName("finish")[index].innerHTML = "完成"
+      } else {
+        document.getElementsByClassName("finish")[index].innerHTML = "已完成"
+      }
+    },
+    deleteATask (task) {
+      var _this = this
+      deleteTaskFromList({
+        pid: _this.pid,
+        taId: task.taId
+      }).then(res => {
+        if (res.code === 200) {
+          deletetask({
+            pid: _this.pid,
+            taId: task.taId
+          }).then(res => {
+            if (res.code === 200) {
+              _this.getTasks(_this.pid)
+              _this.$message("删除成功")
+            } else {
+              _this.$message("删除失败")
+            }
+          })
+        }
+      })
+    },
     deleteAMember (member) {
       var _this = this
       deleteMemberFromList({
@@ -272,7 +427,7 @@ export default {
       this.currentPage = val
     },
     getMembers (id) {
-      getAllMembers(id).then(res => {
+      getPAllMembers({ pid: id }).then(res => {
         if (res.code === 200) {
           this.members = res.data
         } else {
@@ -281,7 +436,7 @@ export default {
       })
     },
     getTempMembers (id) {
-      getAllTempMembers(id).then(res => {
+      getPAllTempMembers({ pid: id }).then(res => {
         if (res.code === 200) {
           this.tempMembers = res.data
         } else {
@@ -290,9 +445,18 @@ export default {
       })
     },
     getResources (id) {
-      getAllResources(id).then(res => {
+      getPAllResources({ pid: id }).then(res => {
         if (res.code === 200) {
           this.resources = res.data
+        } else {
+          console.log(res.msg)
+        }
+      })
+    },
+    getTasks (id) {
+      getAllTasks({ pid: id }).then(res => {
+        if (res.code === 200) {
+          this.tasks = res.data
         } else {
           console.log(res.msg)
         }

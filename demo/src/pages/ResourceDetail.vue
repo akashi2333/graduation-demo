@@ -98,7 +98,7 @@ export default {
       this.currentPage = val
     },
     getComments (id) {
-      getAllComments(id).then(res => {
+      getAllComments({ rid: id }).then(res => {
         if (res.code === 200) {
           this.comments = res.data
         } else {
