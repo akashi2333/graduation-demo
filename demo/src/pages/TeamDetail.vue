@@ -340,7 +340,7 @@ export default {
       this.currentPage = val
     },
     getMembers (id) {
-      getAllMembers(id).then(res => {
+      getAllMembers({ tid: id }).then(res => {
         if (res.code === 200) {
           this.members = res.data
         } else {
@@ -349,7 +349,7 @@ export default {
       })
     },
     getTempMembers (id) {
-      getAllTempMembers(id).then(res => {
+      getAllTempMembers({ tid: id }).then(res => {
         if (res.code === 200) {
           this.tempMembers = res.data
         } else {
@@ -358,7 +358,7 @@ export default {
       })
     },
     getProjects (id) {
-      getAllProgects(id).then(res => {
+      getAllProgects({ tid: id }).then(res => {
         if (res.code === 200) {
           this.projects = res.data
         } else {
@@ -367,7 +367,7 @@ export default {
       })
     },
     getResources (id) {
-      getAllResources(id).then(res => {
+      getAllResources({ tid: id }).then(res => {
         if (res.code === 200) {
           this.resources = res.data
         } else {

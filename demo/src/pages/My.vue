@@ -86,6 +86,77 @@
             </div>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="待办事项">
+          <div class="resource">
+            <div class="resource-manage">
+              <ul class="list">
+                <li v-for="(todo,index) in todoList.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                    :key="todo.todoId"
+                    class="list-item">
+                  <div class="list-left">
+                    <i class="el-icon-caret-right"
+                       style="color:#409EFF; font-size:25px"></i>
+                    <div class="resource-name">{{todo.content}}</div>
+                  </div>
+                  <div class="list-center">
+                    {{todo.time}}
+                  </div>
+                  <div class="list-center">
+                    {{todo.deadline}}
+                  </div>
+                  <div class="list-right">
+                    <el-button class="finish"
+                               ref="finish"
+                               type="primary"
+                               size="small"
+                               @click="finishTodo(index)">完成</el-button>
+                    <el-button style="margin-left:0"
+                               type="primary"
+                               size="small"
+                               @click="edit(todo)">编辑</el-button>
+                    <el-dialog title="编辑待办事项"
+                               :visible.sync="dialogVisible"
+                               width="50%"
+                               :before-close="handleClose">
+                      <el-form label-position="right"
+                               label-width="20%">
+                        <el-form-item label="待办事项内容">
+                          <el-input v-model="tempTodo.content"></el-input>
+                        </el-form-item>
+                        <el-form-item label="待办事项时间">
+                          <el-date-picker v-model="tempTodo.time"
+                                          value-format="yyyy-MM-dd"
+                                          type="daterange"
+                                          range-separator="至"
+                                          start-placeholder="开始日期"
+                                          end-placeholder="结束日期">
+                          </el-date-picker>
+                        </el-form-item>
+                      </el-form>
+                      <span slot="footer"
+                            class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取 消</el-button>
+                        <el-button type="primary"
+                                   @click="saveTodo()">确 定</el-button>
+                      </span>
+                    </el-dialog>
+                    <el-button type="primary"
+                               size="small"
+                               @click="deleteATodo(todo)">删除</el-button>
+                  </div>
+                </li>
+              </ul>
+              <el-pagination class="bottom-bottom"
+                             background
+                             @current-change="handleCurrentChange"
+                             layout="total, prev, pager, next"
+                             :current-page="currentPage"
+                             :page-size="pageSize"
+                             :total="todoList.length">
+              </el-pagination>
+            </div>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -93,13 +164,19 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deleteProjectFromList, deleteTeamFromList, getMyTeams, getMyProjects, quitMyProject, quitMyTeam } from '../api/Index';
+import { deleteProjectFromList, deleteTeamFromList, getMyTeams, getMyProjects, quitMyProject, quitMyTeam, getMyTodoList, deleteTodoFromList, deleteTodo, editTodo } from '../api/Index';
 export default {
   name: "My",
   data () {
     return {
       pageSize: 5,
       currentPage: 1,
+      dialogVisible: false,
+      tempTodo: {
+        content: "",
+        time: ""
+      },
+      todoList: [{ todoId: 1, content: "夏季赛进入前四", time: "2022-02-03至2022-09-09" }, { todoId: 2, content: "夏季赛进入前四", time: "2022-02-03至2022-09-09" }],
       myTeams: [{
         tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
         tid: 1,
@@ -161,35 +238,100 @@ export default {
     ...mapGetters([
       'userId',
       'userName',
-      'tempTeamList'
+      'tempTeamList',
+      'tempTodoList',
     ])
   },
   mounted () {
     // this.myTeams = this.getMyTeams(this.userId)
     // this.myProjects = this.getMyProjects(this.userId)
+    // this.todoList = this.getMyTodoList(this.userId)
   },
   methods: {
+    saveTodo () {
+      editTodo({
+        content: this.tempTodo.content,
+        time: this.tempTodo.time
+      }).then(res => {
+        if (res.code === 200) {
+          this.dialogVisible = false
+          this.$message("修改成功")
+          this.getMyTodoList(this.userId)
+        }
+      })
+    },
+    handleClose (done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => { });
+    },
+    edit (todo) {
+      this.$store.commit('setTempTodoList', todo)
+      this.tempTodo.content = this.tempTodoList.content
+      this.tempTodo.time = this.tempTodoList.time
+      this.dialogVisible = true
+    },
     handleCurrentChange (val) {
       this.currentPage = val
     },
-    // getMyTeams (uid) {
-    //   getMyTeams({
-    //     uid: uid
-    //   }).then(res => {
-    //     if (res.code === 200) {
-    //       this.myTeams = res.data
-    //     }
-    //   })
-    // },
-    // getMyProjects (uid) {
-    //   getMyProjects({
-    //     uid: uid
-    //   }).then(res => {
-    //     if (res.code === 200) {
-    //       this.myProjects = res.data
-    //     }
-    //   })
-    // },
+    deleteATodo (todo) {
+      var _this = this
+      deleteTodoFromList({
+        uid: _this.userId,
+        todoId: todo.todoId
+      }).then(res => {
+        if (res.code === 200) {
+          deleteTodo({
+            uid: _this.userId,
+            todoId: todo.todoId
+          }).then(res => {
+            if (res.code === 200) {
+              _this.$message("删除成功")
+              _this.getMyTodoList(_this.userId)
+            } else {
+              _this.$message("删除失败")
+            }
+          })
+        }
+      })
+    },
+    finishTodo (index) {
+      console.log(document.getElementsByClassName("finish")[index].innerHTML)
+      if (document.getElementsByClassName("finish")[index].innerHTML === "已完成") {
+        document.getElementsByClassName("finish")[index].innerHTML = "完成"
+      } else {
+        document.getElementsByClassName("finish")[index].innerHTML = "已完成"
+      }
+    },
+    getMyTeams (uid) {
+      getMyTeams({
+        uid: uid
+      }).then(res => {
+        if (res.code === 200) {
+          this.myTeams = res.data
+        }
+      })
+    },
+    getMyProjects (uid) {
+      getMyProjects({
+        uid: uid
+      }).then(res => {
+        if (res.code === 200) {
+          this.myProjects = res.data
+        }
+      })
+    },
+    getMyTodoList (uid) {
+      getMyTodoList({
+        uid: uid
+      }).then(res => {
+        if (res.code === 200) {
+          this.todoList = res.data
+        }
+      })
+    },
     goTeam (team) {
       this.$store.commit('setTempTeamList', team);
       this.$router.push({ path: `/TeamDetail/${team.tid}` });

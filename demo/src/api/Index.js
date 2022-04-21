@@ -11,6 +11,7 @@ export const getGoodResources = () => get(`/resource/getGood`)
 
 export const getMyTeams = (params) => get(`/team/getMy`, params)
 export const getMyProjects = (params) => get(`/project/getMy`, params)
+export const getMyTodoList = (params) => get(`/todolist/get`, params)
 export const getTeams = () => get(`/team/getAll`) //返回List，里面有着团队基本信息
 export const joinTeam = (data) => post(`/team/join`, data)
 export const searchTeamById = (data) => post(`/team/search`, data) //返回List，里面有着团队基本信息
@@ -19,6 +20,12 @@ export const getAllMembers = (params) => get(`/team/getMembers`, params)
 export const getAllTempMembers = (params) => get(`/team/getTempMembers`, params)
 export const getAllProgects = (params) => get(`/team/getProjects`, params)
 export const getAllResources = (params) => get(`/team/getResources`, params)
+
+export const getPAllMembers = (params) => get(`/project/getMembers`, params)
+export const getPAllTempMembers = (params) => get(`/project/getTempMembers`, params)
+export const getPAllProgects = (params) => get(`/project/getProjects`, params)
+export const getPAllResources = (params) => get(`/project/getResources`, params)
+export const getAllTasks = (params) => get(`/project/getTasks`, params)
 
 export const deleteTeamFromList = (data) => post(`/team-exit/add`, data)
 export const quitMyTeam = (data) => post(`/team/quit`, data)
@@ -32,8 +39,17 @@ export const deleteTempMember = (data) => deletes(`/tempMember-exit`, data)
 export const addTempMember = (data) => post(`/tempMember/add`, data)
 export const deleteResourceFromList = (data) => post(`/resource-exit/add`, data)
 export const deleteResource = (data) => deletes(`/resource-exit/delete`, data)
+export const deleteTaskFromList = (data) => post(`/task-exit/add`, data)
+export const deletetask = (data) => deletes(`/task-exit/delete`, data)
+export const deleteTodoFromList = (data) => post(`/todolist-exit/add`, data)
+export const deleteTodo = (data) => deletes(`/todolist-exit/delete`, data)
 
 export const getAllComments = (params) => get(`/resource/getComments`, params)
 export const sendComment = (data) => post(`/resource/postComment`, data)
 export const sendLike = (data) => post(`/resource/postUp`, data)
 export const deleteLike = (data) => post(`/resource/postUp`, data)
+
+export const editTask = (data) => post(`/task/edit`, data)
+export const editTodo = (data) => post(`/todo/edit`, data)
+
+export const newTeam = (data) => post(`/team/add`, data)
