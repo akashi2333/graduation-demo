@@ -57,21 +57,7 @@ public class TeamController {
         System.out.println(count);
         team.setTid(count+1);
 
-        InputStream ins;
-        try {
-            ins = file.getInputStream();
-            byte[] buffer=new byte[1024];
-            int len=0;
-            ByteArrayOutputStream bos=new ByteArrayOutputStream();
-            while((len=ins.read(buffer))!=-1){
-                bos.write(buffer,0,len);
-            }
-            bos.flush();
-            team.setImg( bos.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        setTeamImg(file,team);
 
         //可以没有，看前端
         team.setIsowner(1);
@@ -83,9 +69,24 @@ public class TeamController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "修改成功")
     })
+    @ApiOperationSupport(ignoreParameters = {"timestamp","isowner","uid"})
     @PutMapping("/update")
-    private Respone update(@RequestBody Team team) {
-        if (teamService.updateById(team)) {
+    private Respone update(@RequestBody MultipartFile file,Team team) {
+        Team oldTeam = teamService.list(new QueryWrapper<Team>()
+                .eq("tid", team.getTid())).get(0);
+
+        team.setTimestamp(oldTeam.getTimestamp());
+        if (file!=null){
+            setTeamImg(file,team);
+        }else {
+            team.setImg(oldTeam.getImg());
+        }
+
+
+        UpdateWrapper<Team> wrapper = new UpdateWrapper<>();
+        wrapper.eq("tid",team.getTid());
+
+        if (teamService.update(team,wrapper)) {
             return new Respone(200, "修改成功", null);
         } else {
             return new Respone(400, "修改失败", null);
@@ -217,5 +218,22 @@ public class TeamController {
                 (teamService.list(new QueryWrapper<Team>()
                         .eq("isowner", "1")));
         return new Respone(200,"查询成功",ans);
+    }
+
+    private void setTeamImg(MultipartFile file,Team team){
+        InputStream ins;
+        try {
+            ins = file.getInputStream();
+            byte[] buffer=new byte[1024];
+            int len=0;
+            ByteArrayOutputStream bos=new ByteArrayOutputStream();
+            while((len=ins.read(buffer))!=-1){
+                bos.write(buffer,0,len);
+            }
+            bos.flush();
+            team.setImg( bos.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

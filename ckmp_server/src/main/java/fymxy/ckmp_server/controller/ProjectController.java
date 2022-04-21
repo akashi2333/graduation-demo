@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.Project;
+import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.ProjectService;
 import fymxy.ckmp_server.service.UserProjectService;
@@ -45,20 +46,7 @@ public class ProjectController {
     @PostMapping("/add")
     private Respone add(@RequestBody MultipartFile file, Project project){
 
-        InputStream ins;
-        try {
-            ins = file.getInputStream();
-            byte[] buffer=new byte[1024];
-            int len=0;
-            ByteArrayOutputStream bos=new ByteArrayOutputStream();
-            while((len=ins.read(buffer))!=-1){
-                bos.write(buffer,0,len);
-            }
-            bos.flush();
-            project.setImg( bos.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setProjectImg(file,project);
 
         project.setTimestamp(new Date());
         projectService.save(project);
@@ -71,9 +59,21 @@ public class ProjectController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "创建成功")
     })
+    @ApiOperationSupport(ignoreParameters = {"uid","timestamp"})
     @PutMapping("/update")
-    private Respone update(@RequestBody Project project){
-        // TODO: 2022/4/5 根据时间是否为创建还是最后修改决定是否要求修改
+    private Respone update(@RequestBody MultipartFile file, Project project){
+        Project oldProject = projectService.getOne(new QueryWrapper<Project>()
+                .eq("pid", project.getPid()));
+
+        project.setTimestamp(oldProject.getTimestamp());
+        project.setUid(oldProject.getUid());
+        if (file!=null){
+            setProjectImg(file,project);
+        }
+        else {
+            project.setImg(oldProject.getImg());
+        }
+
         if (projectService.update(new UpdateWrapper<>(project))){
             return new Respone(200,"修改成功",null);
         }else {
@@ -90,5 +90,22 @@ public class ProjectController {
     private Respone getSingleProjectDetail(Project project){
         Project res = projectService.getById(project.getPid());
         return new Respone(200,"查询成功",res);
+    }
+
+    private void setProjectImg(MultipartFile file, Project project){
+        InputStream ins;
+        try {
+            ins = file.getInputStream();
+            byte[] buffer=new byte[1024];
+            int len=0;
+            ByteArrayOutputStream bos=new ByteArrayOutputStream();
+            while((len=ins.read(buffer))!=-1){
+                bos.write(buffer,0,len);
+            }
+            bos.flush();
+            project.setImg( bos.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
