@@ -105,7 +105,7 @@ export default {
         var _this = this
         if (valid) {
           register({
-            name: _this.ruleForm.userName,
+            username: _this.ruleForm.userName,
             email: _this.ruleForm.email,
             password: _this.ruleForm.password
           }).then(res => {

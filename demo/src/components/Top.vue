@@ -65,7 +65,7 @@ export default {
     },
     quit () {
       this.$store.commit('setLoginState', false)
-      this.$router.push({ path: '/' })
+      this.$router.push({ path: '/register' })
     }
   },
 }
