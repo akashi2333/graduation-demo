@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.Project;
+import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.ProjectService;
@@ -42,6 +43,12 @@ public class UserProjectController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody UserProject userProject){
+        if (userProjectService.getOne(new QueryWrapper<UserProject>().
+                eq("pid",userProject.getPid()).
+                eq("uid",userProject.getUid()))
+                !=null){
+            return new Respone(200,"已经加入",false);
+        }
         userProjectService.save(userProject);
         return new Respone(200,"加入成功",null);
     }

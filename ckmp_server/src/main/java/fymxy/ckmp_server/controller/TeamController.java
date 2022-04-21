@@ -76,7 +76,7 @@ public class TeamController {
         //可以没有，看前端
         team.setIsowner(1);
         teamService.save(team);
-        return new Respone(200, "创建成功", null);
+        return new Respone(200, "创建成功", team);
     }
 
     @ApiOperation(value = "修改team操作,前端需做核实拥有者身份")
@@ -151,11 +151,17 @@ public class TeamController {
             "team.timestamp"})
     @PostMapping("/delete")
     private Respone addMember(@RequestBody Team team){
+        if (teamService.getOne(new QueryWrapper<Team>().
+                eq("tid",team.getTid()).
+                eq("uid",team.getUid()))
+                !=null){
+            return new Respone(200,"已经加入",false);
+        }
         Team joinTeam = teamService.getOne(new QueryWrapper<Team>().eq("tid",team.getTid()));
         joinTeam.setIsowner(0);
         joinTeam.setUid(team.getUid());
         teamService.save(joinTeam);
-        return new Respone(200,"加入成功",null);
+        return new Respone(200,"加入成功",true);
     }
 
 
@@ -195,7 +201,7 @@ public class TeamController {
         return new Respone(200,"查询成功",ans);
     }
 
-    @ApiOperation(value = "根据所有team")
+    @ApiOperation(value = "得到所有team")
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功")
     })
@@ -205,8 +211,8 @@ public class TeamController {
             "name",
             "brief",
             "timestamp"})
-    @GetMapping("/getProject")
-    private Respone getProject(){
+    @GetMapping("/getAllTeam")
+    private Respone getAllTeam(){
         HashSet<Team> ans = new HashSet<>
                 (teamService.list(new QueryWrapper<Team>()
                         .eq("isowner", "1")));
