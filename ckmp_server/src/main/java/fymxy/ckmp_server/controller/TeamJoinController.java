@@ -46,7 +46,7 @@ public class TeamJoinController {
             @ApiResponse(code = 200,message = "处理成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody TeamJoin teamJoin){
+    private Respone delete( TeamJoin teamJoin){
         teamJoinService.remove(new QueryWrapper<TeamJoin>().eq("uid",teamJoin.getUid()).eq("tid",teamJoin.getTid()));
         return new Respone(200,"处理成功",null);
     }

@@ -43,7 +43,7 @@ public class ProjectExitController {
             @ApiResponse(code = 200,message = "处理成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody ProjectExit projectExit){
+    private Respone delete( ProjectExit projectExit){
         projectExitService.remove(new QueryWrapper<ProjectExit>().eq("uid",projectExit.getUid()).eq("pid",projectExit.getPid()));
         return new Respone(200,"处理成功",null);
     }

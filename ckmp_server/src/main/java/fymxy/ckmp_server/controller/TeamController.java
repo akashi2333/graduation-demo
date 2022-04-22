@@ -141,7 +141,7 @@ public class TeamController {
             "team.timestamp",
             "team.img"})
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody Team team){
+    private Respone delete( Team team){
         // TODO: 2022/4/5 团队主人离开团队怎么办
         teamService.remove(new QueryWrapper<Team>().eq("uid",team.getUid()).eq("tid",team.getTid()));
         return new Respone(200,"删除成功",null);

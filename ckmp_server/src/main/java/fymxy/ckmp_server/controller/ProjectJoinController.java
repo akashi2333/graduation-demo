@@ -42,7 +42,7 @@ public class ProjectJoinController {
             @ApiResponse(code = 200,message = "处理成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody ProjectJoin projectJoin){
+    private Respone delete( ProjectJoin projectJoin){
         projectJoinService.remove(new QueryWrapper<ProjectJoin>().eq("uid",projectJoin.getUid()).eq("pid",projectJoin.getPid()));
         return new Respone(200,"处理成功",null);
     }

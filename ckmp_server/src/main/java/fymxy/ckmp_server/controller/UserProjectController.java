@@ -58,7 +58,7 @@ public class UserProjectController {
             @ApiResponse(code = 200,message = "删除成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody UserProject userProject){
+    private Respone delete(UserProject userProject){
         userProjectService.remove(new QueryWrapper<UserProject>().eq("uid",userProject.getUid()).eq("pid",userProject.getPid()));
         return new Respone(200,"删除成功",null);
     }

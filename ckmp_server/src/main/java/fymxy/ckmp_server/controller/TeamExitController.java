@@ -46,7 +46,7 @@ public class TeamExitController {
             @ApiResponse(code = 200,message = "处理成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody TeamExit teamExit){
+    private Respone delete( TeamExit teamExit){
         teamExitService.remove(new QueryWrapper<TeamExit>().eq("uid",teamExit.getUid()).eq("tid",teamExit.getTid()));
         return new Respone(200,"处理成功",null);
     }
