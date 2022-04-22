@@ -6,8 +6,8 @@
         <i class="el-icon-info"
            style="margin-right:10px;font-size:80px"></i>
         <div class="intruducation">
-          <p style="font-weight: bold">akashi</p>
-          <p style="font-size: 15px;margin-top:10px">Email：3391857675@qq.com</p>
+          <p style="font-weight: bold">{{userName}}</p>
+          <p style="font-size: 15px;margin-top:10px">Email：{{userEmail}}</p>
         </div>
       </div>
     </div>
@@ -27,7 +27,7 @@
                     <div class="team-name">{{myTeam.name}}</div>
                   </div>
                   <div class="list-center">
-                    {{myTeam.time}}
+                    {{myTeam.timestamp}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
@@ -176,74 +176,22 @@ export default {
         content: "",
         time: ""
       },
-      todoList: [{ todoId: 1, content: "夏季赛进入前四", time: "2022-02-03至2022-09-09" }, { todoId: 2, content: "夏季赛进入前四", time: "2022-02-03至2022-09-09" }],
-      myTeams: [{
-        tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
-        tid: 1,
-        resources: [{
-          rid: 1, name: "Meiko", time: "2022.2.17", isowner: "Scout", intruducation: "gg",
-          comments: [{ cid: 1, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯" },
-          { cid: 2, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯" }]
-        },
-        { rid: 2, name: "Scout", time: "2022.2.17" }, { rid: 3, name: "Jiejie", time: "2022.2.17" }, { rid: 4, name: "Flandre", time: "2022.2.17" }, { rid: 5, name: "Viper", time: "2022.2.17" }],
-        projects: [{
-          pid: 1,
-          pic: require("../assets/5.jpg"),
-          tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
-          name: "Meiko",
-          isowner: "Meiko",
-          time: "2022.2.17",
-          intruducation: "wgg",
-          resources: [{
-            rid: 6, name: "Meikovo", time: "2022.2.17", isowner: "Scout", intruducation: "gg",
-            comments: [{ cid: 1, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯" },
-            { cid: 2, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯" }]
-          },
-          { rid: 2, name: "Scout", time: "2022.2.17" }, { rid: 3, name: "Jiejie", time: "2022.2.17" }, { rid: 4, name: "Flandre", time: "2022.2.17" }, { rid: 5, name: "Viper", time: "2022.2.17" }],
-          members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }]
-        },
-        { pid: 2, name: "Scout", time: "2022.2.17" },
-        { pid: 3, name: "Jiejie", time: "2022.2.17" },
-        { pid: 4, name: "Flandre", time: "2022.2.17" },
-        { pid: 5, name: "Viper", time: "2022.2.17" }],
-        name: "Meiko",
-        pic: require("../assets/5.jpg"),
-        time: "2022.2.17",
-        isowner: "Meiko",
-        members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }],
-        intruducation: "EDG战队呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪呱呱呱呱呱呱呱呱呱呱呱呱呱呱呱古古怪怪"
-      },
-      { tid: 2, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Scout", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },
-      { tid: 3, projects: [{ pid: 1, name: "Meiko" }, { pid: 2, name: "Scout" }, { pid: 3, name: "Jiejie" }, { pid: 4, name: "Flandre" }, { pid: 5, name: "Viper" }], name: "Flandre", pic: require("../assets/5.jpg"), time: "2022.2.17", isowner: "Meiko", members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }], intruducation: "EDG战队" },],
-      myProjects: [{
-        pid: 1,
-        pic: require("../assets/5.jpg"),
-        tempMembers: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }],
-        name: "Meiko",
-        isowner: "Meiko",
-        time: "2022.2.17",
-        intruducation: "wgg",
-        resources: [{
-          rid: 6, name: "Meikovo", time: "2022.2.17", isowner: "Scout", intruducation: "gg",
-          comments: [{ cid: 1, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯优点单纯缺点单纯" },
-          { cid: 2, publisher: "Scout", up: 10, time: "2022.4.11", content: "优点单纯缺点单纯" }]
-        },
-        { rid: 2, name: "Scout", time: "2022.2.17" }, { rid: 3, name: "Jiejie", time: "2022.2.17" }, { rid: 4, name: "Flandre", time: "2022.2.17" }, { rid: 5, name: "Viper", time: "2022.2.17" }],
-        members: [{ uid: 1, name: "Meiko" }, { uid: 2, name: "Scout" }, { uid: 3, name: "Jiejie" }, { uid: 4, name: "Flandre" }, { uid: 5, name: "Viper" }]
-      },
-      { pid: 2, name: "Scout", time: "2022.2.17" },]
+      todoList: [],
+      myTeams: [],
+      myProjects: []
     }
   },
   computed: {
     ...mapGetters([
       'userId',
       'userName',
+      'userEmail',
       'tempTeamList',
       'tempTodoList',
     ])
   },
   mounted () {
-    // this.myTeams = this.getMyTeams(this.userId)
+    this.myTeams = this.getMyTeams(this.userId)
     // this.myProjects = this.getMyProjects(this.userId)
     // this.todoList = this.getMyTodoList(this.userId)
   },

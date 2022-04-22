@@ -3,16 +3,67 @@
        style="margin-top: 65px">
     <div class="intruducation">
       <div class="image">
-        <img :src="team.pic"
+        <img :src="'data:image/png;base64,'+team.img"
              alt=""
              class="img">
       </div>
       <div class="left">
-        <p class="title">{{team.name}}</p>
+        <div class="title">
+          <div>{{team.name}}</div>
+          <el-button type="text"
+                     class="edit-team"
+                     icon="el-icon-edit"
+                     @click="dialogFormVisible = true">编辑团队</el-button>
+          <el-dialog title="编辑团队"
+                     :visible.sync="dialogFormVisible"
+                     width="50%">
+            <el-form label-position="right"
+                     label-width="20%"
+                     :model="team"
+                     :rules="rules"
+                     ref="team">
+              <el-form-item label="团队名称"
+                            prop="name">
+                <el-input v-model="team.name"
+                          placeholder="请输入团队名称"></el-input>
+              </el-form-item>
+              <el-form-item label="团队图片"
+                            prop="file">
+                <el-upload action="uploadAction"
+                           list-type="picture-card"
+                           :on-remove="handleRemove"
+                           :limit="1"
+                           :show-file-list="true"
+                           name="img"
+                           ref="upload"
+                           :data="team"
+                           accept="image/png,image/gif,image/jpg,image/jpeg"
+                           :on-exceed="handleExceed"
+                           :auto-upload="false"
+                           :on-error="uploadError"
+                           :before-upload="handleBeforeUpload"
+                           :on-change="changeFile">
+                  <i class="el-icon-plus"></i>
+                </el-upload>
+              </el-form-item>
+              <el-form-item label="团队介绍"
+                            prop="brief">
+                <el-input v-model="team.brief"
+                          placeholder="请输入团队介绍"></el-input>
+              </el-form-item>
+            </el-form>
+            <span slot="footer"
+                  class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">取 消</el-button>
+              <el-button type="primary"
+                         @click="edit('team')">确 定</el-button>
+            </span>
+          </el-dialog>
+        </div>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-time">创建时间：{{team.time}}</p>
+          <p class="team-time">创建时间：{{team.timestamp}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
@@ -22,7 +73,7 @@
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-text">介绍：{{team.intruducation}}</p>
+          <p class="team-text">介绍：{{team.brief}}</p>
         </div>
       </div>
     </div>
@@ -176,45 +227,109 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteProject, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, deleteTempMember, deleteResourceFromList, deleteResource } from '../api/Index';
+import { getAllMembers, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteProject, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, deleteTempMember, deleteResourceFromList, deleteResource, searchTeamById } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
   data () {
     return {
+      dialogFormVisible: false,
       pageSize: 5,
       currentPage: 1,
       isCreater: false,
-      tid: 0,
       team: {},
       members: [],
       projects: [],
       resources: [],
-      tempMembers: []
+      tempMembers: [],
+      rules: {
+        name: [{
+          required: true,
+          message: "请输入团队名称",
+          trigger: "blur"
+        }],
+        brief: [{
+          required: true,
+          message: "请输入团队介绍",
+          trigger: "blur"
+        }]
+      },
+      dialogImageUrl: '',
+      uploadFiles: ''
     }
   },
   computed: {
     ...mapGetters([
-      'tempTeamList',
+      'tempTeamId',
+      'tempTeamOwner',
       'userId'
     ])
   },
   mounted () {
-    if (this.userId === this.tempTeamList.isowner) {
+    if (this.userId === this.tempTeamOwner) {
       this.isCreater = true
     }
-    this.tid = this.tempTeamList.tid
-    this.team = this.tempTeamList
-    this.members = this.tempTeamList.members
-    this.tempMembers = this.tempTeamList.tempMembers
-    this.projects = this.tempTeamList.projects
-    this.resources = this.tempTeamList.resources
-    // this.getMembers(this.tid)
-    // this.getTempMembers(this.tid)
-    // this.getProjects(this.tid)
-    // this.getResources(this.tid)
+    this.getTeam(this.tempTeamId)
+    this.getMembers(this.tempTeamId)
+    this.getTempMembers(this.tempTeamId)
+    this.getProjects(this.tempTeamId)
+    this.getResources(this.tempTeamId)
   },
   methods: {
+    handleBeforeUpload (file) {
+      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
+        'image/jpeg')) {
+        this.$message.error("请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片");
+      }
+      let size = file.size / 1024 / 1024 / 2
+      if (size > 2) {
+        this.$message.error("图片大小必须小于2M");
+      }
+    },
+    handleExceed (files, fileList) {
+      this.$message.error("上传图片不能超过1张!");
+    },
+    handleRemove (file, fileList) {
+      this.$message.error("删除成功!");
+    },
+    // 图片上传失败时
+    uploadError () {
+      this.$message.error("图片上传失败!");
+    },
+    changeFile (file, fileList) {
+      this.uploadFiles = fileList[0].raw
+    },
+    edit (formName) {
+      this.$refs[formName].validate((valid) => {
+        let fd = new FormData()
+        fd.append('name', this.team.name)
+        fd.append('brief', this.team.brief)
+        fd.append('file', this.uploadFiles)
+        fd.append('tid', this.tempTeamId)
+
+        if (valid) {
+          editTeam(fd).then(res => {
+            if (res.code === 200) {
+              this.dialogFormVisible = false
+              this.$message({
+                message: res.msg,
+                type: 'success'
+              })
+              this.getTeam(this.tempTeamId)
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        } else {
+          this.message({
+            message: "error",
+            type: 'error'
+          })
+        }
+      })
+    },
     deleteAMember (member) {
       var _this = this
       deleteMemberFromList({
@@ -339,6 +454,15 @@ export default {
     handleCurrentChange (val) {
       this.currentPage = val
     },
+    getTeam (id) {
+      searchTeamById({ tid: id }).then(res => {
+        if (res.code === 200) {
+          this.team = res.data
+        } else {
+          console.log(res.msg)
+        }
+      })
+    },
     getMembers (id) {
       getAllMembers({ tid: id }).then(res => {
         if (res.code === 200) {
@@ -402,11 +526,18 @@ export default {
   width: 70%;
 }
 .title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: #409eff;
   color: white;
   font-size: 20px;
-  padding: 10px 0;
+  padding: 10px;
   margin-bottom: 10px;
+}
+.edit-team {
+  color: white;
+  font-size: 15px;
 }
 .item {
   display: flex;

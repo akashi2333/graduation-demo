@@ -1,4 +1,4 @@
-import { get, post, deletes } from './Http'
+import { get, post, deletes, put } from './Http'
 
 //登录注册
 export const register = (data) => post(`/user/register`, data)
@@ -9,12 +9,15 @@ export const getAllNotices = () => get('/notice/getAll')
 export const getGoodTeams = () => get(`/team/getGood`)
 export const getGoodResources = () => get(`/resource/getGood`)
 
-export const getMyTeams = (params) => get(`/team/getMy`, params)
+export const getMyTeams = (params) => get(`/user/getTeams`, params)
 export const getMyProjects = (params) => get(`/project/getMy`, params)
 export const getMyTodoList = (params) => get(`/todolist/get`, params)
-export const getTeams = () => get(`/team/getAll`) //返回List，里面有着团队基本信息
-export const joinTeam = (data) => post(`/team/join`, data)
-export const searchTeamById = (data) => post(`/team/search`, data) //返回List，里面有着团队基本信息
+
+export const editTeam = (data) => put(`/team/update`, data)
+export const getTeams = () => get(`/team/getProject`)
+export const newTeam = (data) => post(`/team/add`, data)
+export const joinTeam = (data) => post(`/team-join/add`, data)
+export const searchTeamById = (params) => get(`/team/getByTid`, params) //返回List，里面有着团队基本信息
 
 export const getAllMembers = (params) => get(`/team/getMembers`, params)
 export const getAllTempMembers = (params) => get(`/team/getTempMembers`, params)
@@ -52,4 +55,3 @@ export const deleteLike = (data) => post(`/resource/postUp`, data)
 export const editTask = (data) => post(`/task/edit`, data)
 export const editTodo = (data) => post(`/todo/edit`, data)
 
-export const newTeam = (data) => post(`/team/add`, data)

@@ -8,10 +8,10 @@
         <span>搜索结果</span>
       </div>
       <div class="text item">
-        <div class="image"><img :src="team.pic"
+        <div class="image"><img :src="'data:image/png;base64,'+team.img"
                alt=""></div>
         <div class="team-name">{{team.name}}</div>
-        <div>{{team.time}}</div>
+        <div>{{team.timestamp}}</div>
         <i class="el-icon-circle-plus"
            style="font-size: 30px; color: #409EFF"
            @click="join(team)"></i>
@@ -48,8 +48,9 @@ export default {
   },
   methods: {
     searchTeam (teamId) {
-      searchTeamById(teamId).then(res => {
-        if (res.code === 1) {
+      searchTeamById({ tid: teamId }).then(res => {
+        if (res.code === 200) {
+          console.log(res.data)
           this.team = res.data
           this.isExsited = true
         } else {
@@ -62,10 +63,10 @@ export default {
         tid: team.tid,
         uid: this.userId
       }).then(res => {
-        if (res.code === 1) {
-          this.notify('申请加入成功', 'success')
+        if (res.code === 200) {
+          this.$message(res.msg)
         } else {
-          this.notify(res.msg, 'error')
+          this.$message(res.msg)
         }
       })
     }
@@ -97,6 +98,7 @@ export default {
   flex-direction: column;
   color: gray;
   font-size: 20px;
+  text-align: center;
 }
 .icon {
   margin-top: 20px;
