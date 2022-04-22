@@ -42,7 +42,7 @@ public class TodoController {
             @ApiResponse(code = 200,message = "删除成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody Todo todo){
+    private Respone delete(Todo todo){
         todoService.remove(new QueryWrapper<Todo>().eq("id",todo.getId()).eq("todo",todo.getTodo()));
         return new Respone(200,"删除成功",null);
     }

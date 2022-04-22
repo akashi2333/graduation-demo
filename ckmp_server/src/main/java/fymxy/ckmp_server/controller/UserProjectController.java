@@ -58,7 +58,7 @@ public class UserProjectController {
             @ApiResponse(code = 200,message = "删除成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody UserProject userProject){
+    private Respone delete(UserProject userProject){
         userProjectService.remove(new QueryWrapper<UserProject>().eq("uid",userProject.getUid()).eq("pid",userProject.getPid()));
         return new Respone(200,"删除成功",null);
     }
@@ -68,7 +68,7 @@ public class UserProjectController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功 返回群成员")
     })
-    @GetMapping("getMembers")
+    @GetMapping("/getMembers")
     public Respone getMembers(UserProject userProject){
         //群成员
         List<User> members = new ArrayList<>();

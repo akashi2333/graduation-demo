@@ -85,7 +85,7 @@ public class ProjectController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "创建成功")
     })
-    @ApiOperationSupport(ignoreParameters = {"name","uid","state","timestamp"})
+    @ApiOperationSupport(ignoreParameters = {"name","uid","state","timestamp","img"})
     @GetMapping("/getSingleProjectDetail")
     private Respone getSingleProjectDetail(Project project){
         Project res = projectService.getById(project.getPid());

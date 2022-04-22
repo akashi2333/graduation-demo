@@ -42,7 +42,7 @@ public class IdeaController {
             @ApiResponse(code = 200,message = "删除成功")
     })
     @DeleteMapping("/delete")
-    private Respone delete(@RequestBody Idea idea){
+    private Respone delete( Idea idea){
         ideaService.remove(new QueryWrapper<Idea>().eq("id",idea.getId()).eq("idea",idea.getIdea()));
         return new Respone(200,"删除成功",null);
     }
