@@ -150,7 +150,7 @@ public class TeamController {
             "team.name",
             "team.brief",
             "team.timestamp"})
-    @PostMapping("/delete")
+    @PostMapping("/addMember")
     private Respone addMember(@RequestBody Team team){
         if (teamService.getOne(new QueryWrapper<Team>().
                 eq("tid",team.getTid()).

@@ -52,7 +52,7 @@ public class ProjectController {
         projectService.save(project);
         //插入到群-成员关系表
         userProjectService.save(new UserProject(project.getUid(),project.getPid()));
-        return new Respone(200,"创建成功",null);
+        return new Respone(200,"创建成功",project);
     }
 
     @ApiOperation(value = "修改project操作,前端需做核实拥有者身份")

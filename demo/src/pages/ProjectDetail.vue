@@ -3,26 +3,83 @@
        style="margin-top: 65px">
     <div class="intruducation">
       <div class="image">
-        <img :src="project.pic"
+        <img :src="'data:image/png;base64,'+project.img"
              alt=""
              class="img">
       </div>
       <div class="left">
-        <p class="title">{{project.name}}</p>
-        <div class="item">
-          <i class="el-icon-caret-right"
-             style="color:#409EFF; font-size:25px"></i>
-          <p class="project-time">创建时间：{{project.time}}</p>
+        <div class="title">
+          <div>{{project.name}}</div>
+          <el-button v-show="isCreater"
+                     type="text"
+                     class="edit-project"
+                     icon="el-icon-edit"
+                     @click="PdialogFormVisible = true">编辑项目</el-button>
+          <el-dialog title="新建项目"
+                     :visible.sync="PdialogFormVisible"
+                     width="50%">
+            <el-form label-position="right"
+                     label-width="20%"
+                     :model="project"
+                     :rules="Prules"
+                     ref="project">
+              <el-form-item label="项目名称"
+                            prop="name">
+                <el-input v-model="project.name"
+                          placeholder="请输入项目名称"></el-input>
+              </el-form-item>
+              <el-form-item label="项目图片"
+                            prop="file">
+                <el-upload action="uploadAction"
+                           list-type="picture-card"
+                           :on-remove="handleRemove"
+                           :limit="1"
+                           :show-file-list="true"
+                           name="img"
+                           ref="uploadimg"
+                           :data="project"
+                           accept="image/png,image/gif,image/jpg,image/jpeg"
+                           :on-exceed="handleExceed"
+                           :auto-upload="false"
+                           :on-error="uploadError"
+                           :on-change="PchangeFile">
+                  <i class="el-icon-plus"></i>
+                </el-upload>
+              </el-form-item>
+              <el-form-item label="项目状态"
+                            prop="status">
+                <el-select v-model="project.state"
+                           placeholder="请选择">
+                  <el-option v-for="item in options"
+                             :key="item.value"
+                             :label="item.label"
+                             :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <span slot="footer"
+                  class="dialog-footer">
+              <el-button @click="Pcancel('project')">取 消</el-button>
+              <el-button type="primary"
+                         @click="editAProject('project')">确 定</el-button>
+            </span>
+          </el-dialog>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="project-isowner">管理员：{{project.isowner}}</p>
+          <p class="project-time">创建时间：{{project.timestamp}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="project-text">介绍：{{project.intruducation}}</p>
+          <p class="project-isowner">管理员：{{project.uid}}</p>
+        </div>
+        <div class="item">
+          <i class="el-icon-caret-right"
+             style="color:#409EFF; font-size:25px"></i>
+          <p class="project-text">项目状态：{{project.state}}</p>
         </div>
       </div>
     </div>
@@ -225,7 +282,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deletetask, deleteTaskFromList, editTask, getAllTasks, getPAllMembers, getPAllResources, getPAllTempMembers } from '../api/Index';
+import { deletetask, getProjectById, editProject, deleteTaskFromList, editTask, getAllTasks, getPAllMembers, getPAllResources, getPAllTempMembers } from '../api/Index';
 
 export default {
   name: 'ProjectDetail',
@@ -246,33 +303,92 @@ export default {
         time: "",
         members: []
       },
-      dialogVisible: false
+      options: [{
+        value: '正在进行中',
+        label: '正在进行中'
+      }, {
+        value: '已完成',
+        label: '已完成'
+      }],
+      Prules: {
+        name: [{
+          required: true,
+          message: "请输入项目名称",
+          trigger: "blur"
+        }]
+      },
+      dialogVisible: false,
+      PdialogFormVisible: false,
     }
   },
   computed: {
     ...mapGetters([
-      'tempProjectList',
+      'tempProjectId',
+      'tempProjectOwner',
       'userId',
       'tempTaskList'
     ])
   },
   mounted () {
-    if (this.userId === this.tempProjectList.isowner) {
+    if (this.userId === this.tempProjectOwner) {
       this.isCreater = true
     }
-    this.pid = this.tempProjectList.pid
-    this.project = this.tempProjectList
-    console.log(this.project)
-    this.members = this.tempProjectList.members
-    this.tempMembers = this.tempProjectList.tempMembers
-    this.resources = this.tempProjectList.resources
-    this.tasks = this.tempProjectList.tasks
-    // this.getMembers(this.pid)
-    // this.getTempMembers(this.pid)
-    // this.getResources(this.pid)
-    //this.getTasks(this.pid)
+    this.getProject(this.tempProjectId)
+    this.getMembers(this.pid)
+    this.getTempMembers(this.pid)
+    this.getResources(this.pid)
+    this.getTasks(this.pid)
   },
   methods: {
+    editAProject (formName) {
+      this.$refs[formName].validate((valid) => {
+        let fd = new FormData();
+        fd.append('pid', this.tempProjectId)
+        fd.append('name', this.project.name);
+        fd.append('state', this.project.state);
+        fd.append('file', this.PuploadFiles);
+
+        if (valid) {
+          editProject(fd).then(res => {
+            if (res.code === 200) {
+              this.PdialogFormVisible = false
+              this.$message({
+                message: res.msg,
+                type: 'success'
+              })
+              this.getProject(this.tempProjectId)
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        } else {
+          this.$message({
+            message: "error",
+            type: 'error'
+          })
+        }
+      })
+    },
+    Pcancel (formName) {
+      this.PdialogFormVisible = false
+      this.$refs[formName].resetFields()
+      this.$refs.uploadimg.clearFiles()
+    },
+    handleExceed (files, fileList) {
+      this.$message.error("上传图片不能超过1张!");
+    },
+    handleRemove (file, fileList) {
+      this.$message.error("删除成功!");
+    },
+    // 图片上传失败时
+    uploadError () {
+      this.$message.error("图片上传失败!");
+    },
+    PchangeFile (file, fileList) {
+      this.PuploadFiles = fileList[0].raw
+    },
     saveTask () {
       editTask({
         content: this.tempTask.content,
@@ -426,6 +542,13 @@ export default {
     handleCurrentChange (val) {
       this.currentPage = val
     },
+    getProject (id) {
+      getProjectById({ pid: id }).then(res => {
+        if (res.code === 200) {
+          this.project = res.data
+        }
+      })
+    },
     getMembers (id) {
       getPAllMembers({ pid: id }).then(res => {
         if (res.code === 200) {
@@ -470,7 +593,10 @@ export default {
 .project-detail {
   margin: 10px 30px 0 30px;
 }
-
+.edit-project {
+  color: white;
+  font-size: 15px;
+}
 .intruducation {
   background-color: white;
   width: 100%;
@@ -489,10 +615,13 @@ export default {
   width: 70%;
 }
 .title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background-color: #409eff;
   color: white;
   font-size: 20px;
-  padding: 10px 0;
+  padding: 10px;
   margin-bottom: 10px;
 }
 .item {

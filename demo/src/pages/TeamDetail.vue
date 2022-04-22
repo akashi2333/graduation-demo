@@ -41,7 +41,6 @@
                            :on-exceed="handleExceed"
                            :auto-upload="false"
                            :on-error="uploadError"
-                           :before-upload="handleBeforeUpload"
                            :on-change="changeFile">
                   <i class="el-icon-plus"></i>
                 </el-upload>
@@ -119,7 +118,7 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="member-name">{{tempMember.name}}</div>
+                    <div class="member-name">{{tempMember}}</div>
                   </div>
                   <div class="list-right"
                        v-show="isCreater">
@@ -146,7 +145,64 @@
         <el-tab-pane label="项目管理">
           <div class="project">
             <div class="project-manage">
-              <div class="project-manage-top">团队项目</div>
+              <div class="project-manage-top">
+                <div>团队项目</div>
+                <el-button v-show="isCreater"
+                           type="text"
+                           class="new-project"
+                           icon="el-icon-plus"
+                           @click="PdialogFormVisible = true">新建项目</el-button>
+                <el-dialog title="新建项目"
+                           :visible.sync="PdialogFormVisible"
+                           width="50%">
+                  <el-form label-position="right"
+                           label-width="20%"
+                           :model="tempProject"
+                           :rules="Prules"
+                           ref="tempProject">
+                    <el-form-item label="项目名称"
+                                  prop="name">
+                      <el-input v-model="tempProject.name"
+                                placeholder="请输入项目名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="项目图片"
+                                  prop="file">
+                      <el-upload action="uploadAction"
+                                 list-type="picture-card"
+                                 :on-remove="handleRemove"
+                                 :limit="1"
+                                 :show-file-list="true"
+                                 name="img"
+                                 ref="uploadimg"
+                                 :data="tempProject"
+                                 accept="image/png,image/gif,image/jpg,image/jpeg"
+                                 :on-exceed="handleExceed"
+                                 :auto-upload="false"
+                                 :on-error="uploadError"
+                                 :on-change="PchangeFile">
+                        <i class="el-icon-plus"></i>
+                      </el-upload>
+                    </el-form-item>
+                    <el-form-item label="项目状态"
+                                  prop="status">
+                      <el-select v-model="tempProject.state"
+                                 placeholder="请选择">
+                        <el-option v-for="item in options"
+                                   :key="item.value"
+                                   :label="item.label"
+                                   :value="item.value">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-form>
+                  <span slot="footer"
+                        class="dialog-footer">
+                    <el-button @click="Pcancel('tempProject')">取 消</el-button>
+                    <el-button type="primary"
+                               @click="createProject('tempProject')">确 定</el-button>
+                  </span>
+                </el-dialog>
+              </div>
               <ul class="list">
                 <li v-for="project in projects.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="project.pid"
@@ -157,7 +213,10 @@
                     <div class="project-name">{{project.name}}</div>
                   </div>
                   <div class="list-center">
-                    {{project.time}}
+                    {{project.timestamp}}
+                  </div>
+                  <div class="list-center">
+                    {{project.state}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
@@ -227,12 +286,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteProject, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, deleteTempMember, deleteResourceFromList, deleteResource, searchTeamById } from '../api/Index';
+import { getAllMembers, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, deleteResource, searchTeamById } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
   data () {
     return {
+      PdialogFormVisible: false,
       dialogFormVisible: false,
       pageSize: 5,
       currentPage: 1,
@@ -242,6 +302,18 @@ export default {
       projects: [],
       resources: [],
       tempMembers: [],
+      tempProject: {
+        name: '',
+        img: '',
+        state: ''
+      },
+      options: [{
+        value: '正在进行中',
+        label: '正在进行中'
+      }, {
+        value: '已完成',
+        label: '已完成'
+      }],
       rules: {
         name: [{
           required: true,
@@ -254,8 +326,16 @@ export default {
           trigger: "blur"
         }]
       },
+      Prules: {
+        name: [{
+          required: true,
+          message: "请输入项目名称",
+          trigger: "blur"
+        }]
+      },
       dialogImageUrl: '',
-      uploadFiles: ''
+      uploadFiles: '',
+      PuploadFiles: ''
     }
   },
   computed: {
@@ -276,15 +356,44 @@ export default {
     this.getResources(this.tempTeamId)
   },
   methods: {
-    handleBeforeUpload (file) {
-      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
-        'image/jpeg')) {
-        this.$message.error("请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片");
-      }
-      let size = file.size / 1024 / 1024 / 2
-      if (size > 2) {
-        this.$message.error("图片大小必须小于2M");
-      }
+    createProject (formName) {
+      this.$refs[formName].validate((valid) => {
+        let fd = new FormData();
+        fd.append('tid', this.tempTeamId)
+        fd.append('uid', this.userId)
+        fd.append('name', this.tempProject.name);
+        fd.append('state', this.tempProject.state);
+        fd.append('file', this.PuploadFiles);
+
+        if (valid) {
+          newProject(fd).then(res => {
+            if (res.code === 200) {
+              this.PdialogFormVisible = false
+              //新增完清空表单内容
+              setTimeout(() => {
+                this.$refs.tempProject.resetFields()
+                this.$refs.Pupload.clearFiles()
+              }, 200)
+              this.getProjects(this.tempTeamId)
+              this.$message.success(res.msg)
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        } else {
+          this.$message({
+            message: "error",
+            type: 'error'
+          })
+        }
+      })
+    },
+    Pcancel (formName) {
+      this.PdialogFormVisible = false
+      this.$refs[formName].resetFields()
+      this.$refs.uploadimg.clearFiles()
     },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
@@ -298,6 +407,9 @@ export default {
     },
     changeFile (file, fileList) {
       this.uploadFiles = fileList[0].raw
+    },
+    PchangeFile (file, fileList) {
+      this.PuploadFiles = fileList[0].raw
     },
     edit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -323,7 +435,7 @@ export default {
             console.log(res)
           })
         } else {
-          this.message({
+          this.$message({
             message: "error",
             type: 'error'
           })
@@ -355,22 +467,21 @@ export default {
     },
     agreeTempMember (tempMember) {
       var _this = this
-      deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: tempMember.uid
-      }).then(res => {
+      var data = {
+        tid: _this.tempTeamId,
+        uid: tempMember
+      }
+      deleteTempMemberFromList({ data: data }).then(res => {
         if (res.code === 200) {
           addTempMember({
-            type: 0,
-            tid: _this.tid,
-            uid: tempMember.uid
+            tid: _this.tempTeamId,
+            uid: tempMember
           }).then(res => {
             if (res === 200) {
-              _this.getTempMembers(_this.tid)
-              _this.$message('添加成功')
+              _this.getTempMembers(_this.tempTeamId)
+              _this.$message.success(res.msg)
             } else {
-              _this.$message('添加失败')
+              _this.$message.error(res.msg)
             }
           })
         }
@@ -378,49 +489,34 @@ export default {
     },
     deleteATempMember (tempMember) {
       var _this = this
-      deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: tempMember.uid
-      }).then(res => {
+      var data = {
+        tid: _this.tempTeamId,
+        uid: tempMember
+      }
+      deleteTempMemberFromList({ data: data }).then(res => {
         if (res.code === 200) {
-          deleteTempMember({
-            type: 0,
-            tid: _this.tid,
-            uid: tempMember.uid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getTempMembers(_this.tid)
-              _this.$message('拒绝成功')
-            } else {
-              _this.$message('拒绝失败')
-            }
-          })
+          _this.getTempMembers(_this.tempTeamId)
+          _this.$message.success(res.msg)
+        } else {
+          _this.$message.error(res.msg)
         }
       })
     },
     goProject (project) {
-      this.$store.commit('setTempProjectList', project)
+      this.$store.commit('setTempProjectId', project.pid)
+      this.$store.commit('setTempProjectOwner', project.uid)
       this.$router.push({ path: `/ProjectDetail/${project.pid}` });
     },
     deleteAProject (project) {
       var _this = this
       deleteProjectFromList({
-        tid: _this.tid,
+        tid: _this.tempTeamId,
         pid: project.pid
       }).then(res => {
         if (res === 200) {
-          deleteProject({
-            tid: _this.tid,
-            pid: project.pid
-          }).then(res => {
-            if (res === 200) {
-              _this.getProjects(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
+          _this.$message.success(res.msg)
+        } else {
+          _this.$message.error(res.msg)
         }
       })
     },
@@ -458,8 +554,6 @@ export default {
       searchTeamById({ tid: id }).then(res => {
         if (res.code === 200) {
           this.team = res.data
-        } else {
-          console.log(res.msg)
         }
       })
     },
@@ -476,8 +570,6 @@ export default {
       getAllTempMembers({ tid: id }).then(res => {
         if (res.code === 200) {
           this.tempMembers = res.data
-        } else {
-          console.log(res.msg)
         }
       })
     },
@@ -564,9 +656,7 @@ export default {
   width: 100%;
   height: 330px;
 }
-.team-member-top,
-.project-manage-top,
-.resource-manage-top {
+.team-member-top {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -575,6 +665,22 @@ export default {
   background-color: #409eff;
   font-size: 15px;
   color: white;
+}
+.project-manage-top,
+.resource-manage-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1%;
+  width: 98%;
+  height: 40px;
+  background-color: #409eff;
+  font-size: 15px;
+  color: white;
+}
+.new-project {
+  color: white;
+  font-size: 15px;
 }
 .list {
   width: 100%;

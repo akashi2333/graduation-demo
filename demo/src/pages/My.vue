@@ -63,7 +63,10 @@
                     <div class="resource-name">{{myProject.name}}</div>
                   </div>
                   <div class="list-center">
-                    {{myProject.time}}
+                    {{myProject.timestamp}}
+                  </div>
+                  <div class="list-center">
+                    {{myProject.state}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
@@ -191,8 +194,8 @@ export default {
     ])
   },
   mounted () {
-    this.myTeams = this.getMyTeams(this.userId)
-    // this.myProjects = this.getMyProjects(this.userId)
+    this.getMyTeams(this.userId)
+    this.getMyProjects(this.userId)
     // this.todoList = this.getMyTodoList(this.userId)
   },
   methods: {
@@ -268,6 +271,7 @@ export default {
       }).then(res => {
         if (res.code === 200) {
           this.myProjects = res.data
+          console.log(res.data)
         }
       })
     },
