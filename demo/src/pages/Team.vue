@@ -5,7 +5,7 @@
       <div class="search">
         <input type="text"
                placeholder="搜索团队"
-               v-model="keywaords">
+               v-model="keywords">
         <div class="search-btn"
              @click="search()">
           <i class="el-icon-search"
@@ -47,11 +47,6 @@
                        :on-change="changeFile">
               <i class="el-icon-plus"></i>
             </el-upload>
-            <el-dialog :visible.sync="dialogVisible">
-              <img width="50px"
-                   :src="dialogImageUrl"
-                   alt="">
-            </el-dialog>
           </el-form-item>
           <el-form-item label="团队介绍"
                         prop="brief">
@@ -72,7 +67,7 @@
         <li class="content-item"
             v-for="team in teamList.slice((currentPage-1)*pageSize,currentPage*pageSize)"
             :key="team.tid">
-          <img :src="team.file"
+          <img :src="'data:image/png;base64,'+team.img"
                alt=""
                class="image"
                style="display:block"
@@ -105,8 +100,7 @@ export default {
   data () {
     return {
       dialogFormVisible: false,
-      dialogVisible: false,
-      keywaords: '',
+      keywords: '',
       pageSize: 12,
       currentPage: 1,
       teamList: [],
@@ -137,25 +131,18 @@ export default {
     ])
   },
   mounted () {
-    // this.getAllTeams()
+    this.getAllTeams()
   },
   methods: {
     handleBeforeUpload (file) {
       if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
         'image/jpeg')) {
-        this.$notify.warning({
-          title: '警告',
-          message: '请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片'
-        })
+        this.$message.error("请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片");
       }
       let size = file.size / 1024 / 1024 / 2
       if (size > 2) {
-        this.$notify.warning({
-          title: '警告',
-          message: '图片大小必须小于2M'
-        })
+        this.$message.error("图片大小必须小于2M");
       }
-
     },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
@@ -188,9 +175,10 @@ export default {
               })
               //新增完清空表单内容
               setTimeout(() => {
-                this.$refs.tempTeam.resetFields();
+                this.$refs.tempTeam.resetFields()
+                this.$refs.upload.clearFiles()
               }, 200)
-              this.reload()
+              this.getAllTeams()
             } else {
               this.$message.error(res.msg);
             }
@@ -215,30 +203,31 @@ export default {
     },
     getAllTeams () {
       getTeams().then(res => {
-        this.teamList = res
+        this.teamList = res.data
       }).catch(err => {
         console.log(err)
       })
     },
-    goTeam (item) {
-      this.$store.commit('setTempTeamList', item);
-      this.$router.push({ path: `/TeamDetail/${item.tid}` });
+    goTeam (team) {
+      this.$store.commit('setTempTeamId', team.tid);
+      this.$store.commit('setTempTeamOwner', team.isowner)
+      this.$router.push({ path: `/TeamDetail/${team.tid}` });
     },
     join (team) {
       joinTeam({
         tid: team.tid,
         uid: this.userId
       }).then(res => {
-        if (res.code === 1) {
-          this.notify('申请加入成功', 'success')
+        if (res.code === 200) {
+          this.$message(res.msg)
         } else {
-          this.notify(res.msg, 'error')
+          this.$message(res.msg)
         }
       })
     },
     search () {
-      this.$store.commit('setSearchWord', this.keywaords)
-      this.$router.push({ path: '/Search', query: { keywords: this.keywaords } })
+      this.$store.commit('setSearchWord', this.keywords)
+      this.$router.push({ path: '/Search', query: { keywords: this.keywords } })
     }
   }
 }

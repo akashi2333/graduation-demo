@@ -2,6 +2,7 @@ const User = {
   state: {
     userId: '',
     userName: '',
+    userEmail: '',
     loginState: false
   },
   getters: {
@@ -19,6 +20,13 @@ const User = {
       }
       return userName
     },
+    userEmail: state => {
+      let userEmail = state.userEmail
+      if (!userEmail) {
+        userEmail = JSON.parse(window.localStorage.getItem('userEmail') || null)
+      }
+      return userEmail
+    },
     loginState: state => {
       let loginState = state.loginState
       if (!loginState) {
@@ -35,6 +43,10 @@ const User = {
     setUserName: (state, userName) => {
       state.userName = userName
       window.localStorage.setItem('userName', JSON.stringify(userName))
+    },
+    setUserEmail: (state, userEmail) => {
+      state.userEmail = userEmail
+      window.localStorage.setItem('userEmail', JSON.stringify(userEmail))
     },
     setLoginState: (state, loginState) => {
       state.loginState = loginState

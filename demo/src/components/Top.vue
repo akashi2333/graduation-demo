@@ -61,7 +61,13 @@ export default {
       console.log(key, keyPath);
     },
     goToNav (name, path) {
-      this.$router.push({ path: path })
+      if (!this.loginState && path === '/My') {
+        this.$message.error("请先登录")
+      } else if (!this.loginState && path === '/Info') {
+        this.$message.error("请先登录")
+      } else {
+        this.$router.push({ path: path })
+      }
     },
     quit () {
       this.$store.commit('setLoginState', false)
