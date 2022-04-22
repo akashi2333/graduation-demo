@@ -126,4 +126,13 @@ public class UserController {
         members.addAll(teamService.list(new QueryWrapper<Team>().eq("uid", uid)));
         return new Respone(200,"查找成功",members);
     }
+
+    @ApiOperation(value = "个人信息")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "查找成功")
+    })
+    @GetMapping("/getInformation")
+    public Respone getInformation(@RequestParam int uid){
+        return new Respone(200,"查找成功",userService.getById(uid));
+    }
 }

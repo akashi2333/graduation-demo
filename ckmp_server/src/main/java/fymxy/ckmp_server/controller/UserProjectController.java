@@ -68,7 +68,7 @@ public class UserProjectController {
     @ApiResponses({
             @ApiResponse(code = 200,message = "查找成功 返回群成员")
     })
-    @GetMapping("getMembers")
+    @GetMapping("/getMembers")
     public Respone getMembers(UserProject userProject){
         //群成员
         List<User> members = new ArrayList<>();

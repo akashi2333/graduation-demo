@@ -7,9 +7,10 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.Project;
 import fymxy.ckmp_server.entity.Team;
-import fymxy.ckmp_server.entity.UserProject;
+import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.ProjectService;
 import fymxy.ckmp_server.service.TeamService;
+import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -43,6 +44,8 @@ public class TeamController {
     TeamService teamService;
     @Autowired
     ProjectService projectService;
+    @Autowired
+    UserService userService;
 
     @ApiOperation(value = "新建team操作")
     @ApiOperationSupport(ignoreParameters = {"team.tid","team.timestamp","team.isowner"})
@@ -102,7 +105,8 @@ public class TeamController {
             "isowner",
             "name",
             "brief",
-            "timestamp"})
+            "timestamp",
+            "team.img"})
     @GetMapping("/getMyTeamDetail")
     private Respone getMyTeamDetail( Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()).eq("isowner", 1));
@@ -118,7 +122,8 @@ public class TeamController {
             "isowner",
             "name",
             "brief",
-            "timestamp"})
+            "timestamp",
+            "team.img"})
     @GetMapping("/getJoinTeamDetail")
     private Respone getJoinTeamDetail(Team team) {
         List<Team> res = teamService.list(new QueryWrapper<Team>().eq("uid", team.getUid()));
@@ -133,7 +138,8 @@ public class TeamController {
             "team.isowner",
             "team.name",
             "team.brief",
-            "team.timestamp"})
+            "team.timestamp",
+            "team.img"})
     @DeleteMapping("/delete")
     private Respone delete(@RequestBody Team team){
         // TODO: 2022/4/5 团队主人离开团队怎么办
@@ -149,8 +155,9 @@ public class TeamController {
             "team.isowner",
             "team.name",
             "team.brief",
-            "team.timestamp"})
-    @PostMapping("/delete")
+            "team.timestamp",
+            "team.img"})
+    @PostMapping("/addMember")
     private Respone addMember(@RequestBody Team team){
         if (teamService.getOne(new QueryWrapper<Team>().
                 eq("tid",team.getTid()).
@@ -175,7 +182,8 @@ public class TeamController {
             "isowner",
             "name",
             "brief",
-            "timestamp"})
+            "timestamp",
+            "team.img"})
     @GetMapping("/getByTid")
     private Respone getByTid(Team team){
         Team byId = teamService.getOne(new QueryWrapper<Team>().eq("tid",team.getTid()));
@@ -192,7 +200,8 @@ public class TeamController {
             "isowner",
             "name",
             "brief",
-            "timestamp"})
+            "timestamp",
+            "team.img"})
     @GetMapping("/getProjectByTid")
     private Respone getProjectByTid(Team team){
         HashSet<Project> ans = new HashSet<>();
@@ -211,12 +220,35 @@ public class TeamController {
             "isowner",
             "name",
             "brief",
-            "timestamp"})
+            "timestamp",
+            "team.img"})
     @GetMapping("/getAllTeam")
     private Respone getAllTeam(){
         HashSet<Team> ans = new HashSet<>
                 (teamService.list(new QueryWrapper<Team>()
                         .eq("isowner", "1")));
+        return new Respone(200,"查询成功",ans);
+    }
+
+
+    @ApiOperation(value = "根据tid查询拥有的下面的成员")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "查询成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {
+            "uid",
+            "isowner",
+            "name",
+            "brief",
+            "timestamp",
+            "img"})
+    @GetMapping("/getMembers")
+    private Respone getMembers(Team team){
+        HashSet<User> ans = new HashSet<>();
+        for (Team tid : teamService.list(new QueryWrapper<Team>().eq("tid",team.getTid()))) {
+            User byId = userService.getById(tid.getUid());
+            ans.add(byId);
+        }
         return new Respone(200,"查询成功",ans);
     }
 
