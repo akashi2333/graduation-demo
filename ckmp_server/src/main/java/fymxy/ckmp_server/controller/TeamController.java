@@ -186,7 +186,7 @@ public class TeamController {
             "team.img"})
     @GetMapping("/getByTid")
     private Respone getByTid(Team team){
-        Team byId = teamService.getOne(new QueryWrapper<Team>().eq("tid",team.getTid()));
+        Team byId = teamService.list(new QueryWrapper<Team>().eq("tid",team.getTid())).get(0);
         return new Respone(200,"查询成功",byId);
     }
 

@@ -247,7 +247,7 @@ export default {
     },
     getMyTodoList (uid) {
       getMyTodoList({
-        uid: uid
+        id: uid
       }).then(res => {
         if (res.code === 200) {
           this.todoList = res.data

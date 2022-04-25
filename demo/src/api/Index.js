@@ -18,6 +18,7 @@ export const searchTeamById = (params) => get(`/team/getByTid`, params)
 
 export const getAllResources = (params) => get(`/team-resource/getFileList`, params)
 export const newResource = (data) => post(`/team-resource/add`, data)
+export const downloadResource = (params) => get(`/team-resource/download`, params)
 
 
 export const getAllTempMembers = (params) => get(`/team-join/getByTeamId`, params)

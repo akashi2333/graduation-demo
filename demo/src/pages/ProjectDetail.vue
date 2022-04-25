@@ -536,10 +536,6 @@ export default {
         }
       })
     },
-    goResource (resource) {
-      this.$store.commit('setTempResourceList', resource)
-      this.$router.push({ path: `/ResourceDetail/${resource.rid}` })
-    },
     handleCurrentChange (val) {
       this.currentPage = val
     },

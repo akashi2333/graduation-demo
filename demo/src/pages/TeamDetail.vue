@@ -289,7 +289,7 @@
                   <div class="list-right">
                     <el-button type="primary"
                                size="small"
-                               @click="goResource(resource)">查看</el-button>
+                               @click="download(resource)">下载</el-button>
                     <el-button type="primary"
                                size="small"
                                @click="deleteAResource(resource)"
@@ -316,7 +316,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById } from '../api/Index';
+import { getAllMembers, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById, downloadResource } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
@@ -389,6 +389,24 @@ export default {
     this.getResources(this.tempTeamId)
   },
   methods: {
+    download (resource) {
+      downloadResource({
+        uid: this.userId,
+        tid: this.tempTeamId,
+        resourceName: resource.resourceName
+      }).then(res => {
+        let url = `http://localhost:8888/team-resource/download?resourceName=${resource.resourceName}&tid=${this.tempTeamId}&uid=${this.userId}`
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.download = decodeURIComponent(resource.resourceName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        this.$message.success('下载成功')
+      })
+    },
     createResource () {
       let fd = new FormData();
       fd.append('tid', this.tempTeamId)
@@ -611,10 +629,6 @@ export default {
           _this.$message('删除失败')
         }
       })
-    },
-    goResource (resource) {
-      this.$store.commit('setTempResourceList', resource)
-      this.$router.push({ path: `/ResourceDetail/${resource.rid}` })
     },
     handleCurrentChange (val) {
       this.currentPage = val
