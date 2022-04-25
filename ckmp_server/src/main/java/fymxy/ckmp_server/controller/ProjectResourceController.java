@@ -121,4 +121,23 @@ public class ProjectResourceController {
         List<ProjectResource> list = projectResourceService.list(new QueryWrapper<ProjectResource>().eq("pid", projectResource.getPid()));
         return new Respone(200,"获取成功",list);
     }
+
+    @ApiOperation(value = "删除文件操作")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "删除成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {"timestamp"})
+    @DeleteMapping("/delete")
+    public Respone downloadFile(ProjectResource projectResource){
+        File file = new File(basePath + projectResource.getResourceName());
+        if (!file.exists()){
+            return new Respone(200,"已删除",null);
+        }
+        projectResourceService.remove(new QueryWrapper<ProjectResource>()
+                .eq("pid",projectResource.getPid())
+                .eq("uid",projectResource.getUid())
+                .eq("resource_name",projectResource.getResourceName()));
+        file.delete();
+        return new Respone(200,"删除成功",null);
+    }
 }
