@@ -344,6 +344,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         let fd = new FormData();
         fd.append('pid', this.tempProjectId)
+        fd.append('uid', this.userId)
         fd.append('name', this.project.name);
         fd.append('state', this.project.state);
         fd.append('file', this.PuploadFiles);

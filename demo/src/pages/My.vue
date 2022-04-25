@@ -93,19 +93,31 @@
           <div class="resource">
             <div class="resource-manage">
               <ul class="list">
+                <li class="list-new">
+                  <el-button type="text"
+                             class="new-todo"
+                             icon="el-icon-plus"
+                             @click="dialogVisible = true">新建待办事项</el-button>
+                  <el-dialog title="新建待办事项"
+                             :visible.sync="dialogVisible"
+                             width="50%">
+                    <el-input v-model="tempTodo"
+                              placeholder="请输入内容"></el-input>
+                    <span slot="footer"
+                          class="dialog-footer">
+                      <el-button @click="cancel()">取 消</el-button>
+                      <el-button type="primary"
+                                 @click="createTodo()">确 定</el-button>
+                    </span>
+                  </el-dialog>
+                </li>
                 <li v-for="(todo,index) in todoList.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="todo.todoId"
+                    :key="index"
                     class="list-item">
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="resource-name">{{todo.content}}</div>
-                  </div>
-                  <div class="list-center">
-                    {{todo.time}}
-                  </div>
-                  <div class="list-center">
-                    {{todo.deadline}}
+                    <div class="resource-name">{{todo}}</div>
                   </div>
                   <div class="list-right">
                     <el-button class="finish"
@@ -113,36 +125,6 @@
                                type="primary"
                                size="small"
                                @click="finishTodo(index)">完成</el-button>
-                    <el-button style="margin-left:0"
-                               type="primary"
-                               size="small"
-                               @click="edit(todo)">编辑</el-button>
-                    <el-dialog title="编辑待办事项"
-                               :visible.sync="dialogVisible"
-                               width="50%"
-                               :before-close="handleClose">
-                      <el-form label-position="right"
-                               label-width="20%">
-                        <el-form-item label="待办事项内容">
-                          <el-input v-model="tempTodo.content"></el-input>
-                        </el-form-item>
-                        <el-form-item label="待办事项时间">
-                          <el-date-picker v-model="tempTodo.time"
-                                          value-format="yyyy-MM-dd"
-                                          type="daterange"
-                                          range-separator="至"
-                                          start-placeholder="开始日期"
-                                          end-placeholder="结束日期">
-                          </el-date-picker>
-                        </el-form-item>
-                      </el-form>
-                      <span slot="footer"
-                            class="dialog-footer">
-                        <el-button @click="dialogVisible = false">取 消</el-button>
-                        <el-button type="primary"
-                                   @click="saveTodo()">确 定</el-button>
-                      </span>
-                    </el-dialog>
                     <el-button type="primary"
                                size="small"
                                @click="deleteATodo(todo)">删除</el-button>
@@ -167,7 +149,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deleteProjectFromList, deleteTeamFromList, getMyTeams, getMyProjects, quitMyProject, quitMyTeam, getMyTodoList, deleteTodoFromList, deleteTodo, editTodo } from '../api/Index';
+import { getMyTeams, newTodo, getMyProjects, quitMyProject, quitMyTeam, getMyTodoList, deleteTodoFromList, deleteTodo } from '../api/Index';
 export default {
   name: "My",
   data () {
@@ -175,10 +157,7 @@ export default {
       pageSize: 5,
       currentPage: 1,
       dialogVisible: false,
-      tempTodo: {
-        content: "",
-        time: ""
-      },
+      tempTodo: '',
       todoList: [],
       myTeams: [],
       myProjects: []
@@ -189,40 +168,32 @@ export default {
       'userId',
       'userName',
       'userEmail',
-      'tempTeamList',
-      'tempTodoList',
     ])
   },
   mounted () {
     this.getMyTeams(this.userId)
     this.getMyProjects(this.userId)
-    // this.todoList = this.getMyTodoList(this.userId)
+    this.getMyTodoList(this.userId)
   },
   methods: {
-    saveTodo () {
-      editTodo({
-        content: this.tempTodo.content,
-        time: this.tempTodo.time
+    createTodo () {
+      newTodo({
+        id: this.userId,
+        todo: this.tempTodo
       }).then(res => {
         if (res.code === 200) {
           this.dialogVisible = false
-          this.$message("修改成功")
+          this.tempTodo = ''
+          this.$message.success(res.msg)
           this.getMyTodoList(this.userId)
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
-    handleClose (done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done();
-        })
-        .catch(_ => { });
-    },
-    edit (todo) {
-      this.$store.commit('setTempTodoList', todo)
-      this.tempTodo.content = this.tempTodoList.content
-      this.tempTodo.time = this.tempTodoList.time
-      this.dialogVisible = true
+    cancel () {
+      this.dialogVisible = false
+      this.tempTodo = ''
     },
     handleCurrentChange (val) {
       this.currentPage = val
@@ -271,7 +242,6 @@ export default {
       }).then(res => {
         if (res.code === 200) {
           this.myProjects = res.data
-          console.log(res.data)
         }
       })
     },
@@ -285,54 +255,50 @@ export default {
       })
     },
     goTeam (team) {
-      this.$store.commit('setTempTeamList', team);
+      this.$store.commit('setTempTeamId', team.tid)
+      this.$store.commit('setTempTeamOwner', team.uid)
       this.$router.push({ path: `/TeamDetail/${team.tid}` });
     },
     quitTeam (team) {
       var _this = this
-      deleteTeamFromList({
-        tid: team.tid,
-        uid: _this.userId
-      }).then(res => {
-        if (res === 200) {
-          quitMyTeam({
-            tid: team.tid,
-            uid: _this.userId
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getMyTeams(_this.userId)
-              _this.$message('已退出团队')
-            } else {
-              _this.$message('退出失败')
-            }
-          })
-        }
-      })
+      if (team.uid === _this.userId) {
+        _this.$message.error("管理员不能退出团队")
+      } else {
+        quitMyTeam({
+          tid: team.tid,
+          uid: _this.userId
+        }).then(res => {
+          if (res.code === 200) {
+            _this.getMyTeams(_this.userId)
+            _this.$message.success('已退出团队')
+          } else {
+            _this.$message.error('退出失败')
+          }
+        })
+      }
     },
     goProject (project) {
-      this.$store.commit('setTempProjectList', project)
+      this.$store.commit('setTempProjectId', project.pid)
+      this.$store.commit('setTempProjectOwner', project.uid)
       this.$router.push({ path: `/ProjectDetail/${project.pid}` });
     },
     quitProject (project) {
       var _this = this
-      deleteProjectFromList({
-        pid: project.pid,
-        uid: _this.userId
-      }).then(res => {
-        if (res === 200) {
-          quitMyProject({
-            pid: project.pid,
-            uid: _this.userId
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getMyProjects(_this.userId)
-              _this.$message('已退出项目')
-            } else {
-              _this.$message('退出失败')
-            }
-          })
-        }
-      })
+      if (project.uid === _this.userId) {
+        _this.$message.error("管理员不能退出项目")
+      } else {
+        quitMyProject({
+          pid: project.pid,
+          uid: _this.userId
+        }).then(res => {
+          if (res.code === 200) {
+            _this.getMyProjects(_this.userId)
+            _this.$message.success('已退出项目')
+          } else {
+            _this.$message.error('退出失败')
+          }
+        })
+      }
     }
   }
 }
@@ -375,7 +341,16 @@ export default {
 }
 .list {
   width: 100%;
-  padding: 20px 0;
+  padding: 0 0 20px 0;
+}
+.list-new {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.new-todo {
+  font-size: 15px;
 }
 .list-item {
   display: flex;

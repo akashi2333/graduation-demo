@@ -199,7 +199,7 @@ export default {
       })
     },
     goTeam (team) {
-      this.$store.commit('setTempTeamId', team.tid);
+      this.$store.commit('setTempTeamId', team.tid)
       this.$store.commit('setTempTeamOwner', team.uid)
       this.$router.push({ path: `/TeamDetail/${team.tid}` });
     },

@@ -84,7 +84,6 @@ export default {
           _this.$store.commit('setUserEmail', _this.ruleForm.email)
           _this.$store.commit('setUserName', _this.ruleForm.userName)
           _this.$store.commit('setLoginState', true)
-          _this.$store.commit('set')
           setTimeout(function () {
             _this.$router.push({ path: '/' })
           }, 2000)

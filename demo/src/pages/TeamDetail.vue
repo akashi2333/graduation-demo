@@ -67,7 +67,7 @@
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-isowner">管理员：{{team.isowner}}</p>
+          <p class="team-isowner">管理员：{{team.uid}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
@@ -90,7 +90,7 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="member-name">{{member.name}}</div>
+                    <div class="member-name">{{member.username}}</div>
                   </div>
                   <div class="list-right"
                        v-show="isCreater">
@@ -173,7 +173,7 @@
                                  :limit="1"
                                  :show-file-list="true"
                                  name="img"
-                                 ref="uploadimg"
+                                 ref="Pupload"
                                  :data="tempProject"
                                  accept="image/png,image/gif,image/jpg,image/jpeg"
                                  :on-exceed="handleExceed"
@@ -243,7 +243,37 @@
         <el-tab-pane label="团队资源管理">
           <div class="resource">
             <div class="resource-manage">
-              <div class="resource-manage-top">团队资源</div>
+              <div class="resource-manage-top">
+                <div>团队资源</div>
+                <el-button v-show="isCreater"
+                           type="text"
+                           class="new-resource"
+                           icon="el-icon-plus"
+                           @click="RdialogFormVisible = true">上传资源</el-button>
+                <el-dialog title="上传资源"
+                           :visible.sync="RdialogFormVisible"
+                           width="50%">
+                  <el-upload ref="Rupload"
+                             :limit="1"
+                             :on-exceed="RhandleExceed"
+                             :before-upload="beforeUpload"
+                             :auto-upload="false"
+                             :on-change="RchangeFile"
+                             :on-error="handleError"
+                             action="wgg">
+                    <div style="font-size:15px;color:#409eff;margin-bottom:5px"><i class="el-icon-upload" /> 添加文件</div>
+                    <div slot="tip"
+                         class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                  </el-upload>
+                  <span slot="footer"
+                        class="dialog-footer">
+                    <el-button @click="Rcancel()">取 消</el-button>
+                    <el-button type="primary"
+                               :loading="loading"
+                               @click="createResource()">确 定</el-button>
+                  </span>
+                </el-dialog>
+              </div>
               <ul class="list">
                 <li v-for="resource in resources.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="resource.rid"
@@ -251,10 +281,10 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="resource-name">{{resource.name}}</div>
+                    <div class="resource-name">{{resource.resourceName}}</div>
                   </div>
                   <div class="list-center">
-                    {{resource.time}}
+                    {{resource.timestamp}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
@@ -286,7 +316,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, deleteResource, searchTeamById } from '../api/Index';
+import { getAllMembers, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
@@ -294,9 +324,12 @@ export default {
     return {
       PdialogFormVisible: false,
       dialogFormVisible: false,
+      RdialogFormVisible: false,
       pageSize: 5,
       currentPage: 1,
       isCreater: false,
+      loading: false,
+      uploadFile: '',
       team: {},
       members: [],
       projects: [],
@@ -356,6 +389,47 @@ export default {
     this.getResources(this.tempTeamId)
   },
   methods: {
+    createResource () {
+      let fd = new FormData();
+      fd.append('tid', this.tempTeamId)
+      fd.append('uid', this.userId)
+      fd.append('file', this.uploadFile)
+      newResource(fd).then(res => {
+        if (res.code === 200) {
+          this.RdialogFormVisible = false
+          this.$refs.Rupload.clearFiles()
+          this.getResources(this.tempTeamId)
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error(res.msg);
+        }
+      })
+    },
+    RchangeFile (file, fileList) {
+      this.uploadFile = file.raw
+    },
+    Rcancel () {
+      this.RdialogFormVisible = false
+      this.$refs.Rupload.clearFiles()
+    },
+    beforeUpload (file) {
+      let isLt2M = true
+      isLt2M = file.size / 1024 / 1024 < 100
+      if (!isLt2M) {
+        this.loading = false
+        this.$message.error('上传文件大小不能超过 100MB!')
+      }
+      return isLt2M
+    },
+    handleSuccess (response, file, fileList) {
+      this.$refs.Rupload.clearFiles()
+      this.$message.success('上传成功')
+    },
+    handleError (e, file, fileList) {
+      const msg = JSON.parse(e.message)
+      this.$message.error(msg.message)
+      this.loading = false
+    },
     createProject (formName) {
       this.$refs[formName].validate((valid) => {
         let fd = new FormData();
@@ -373,6 +447,7 @@ export default {
               setTimeout(() => {
                 this.$refs.tempProject.resetFields()
                 this.$refs.Pupload.clearFiles()
+                this.tempProject.state = ''
               }, 200)
               this.getProjects(this.tempTeamId)
               this.$message.success(res.msg)
@@ -393,10 +468,14 @@ export default {
     Pcancel (formName) {
       this.PdialogFormVisible = false
       this.$refs[formName].resetFields()
-      this.$refs.uploadimg.clearFiles()
+      this.$refs.Pupload.clearFiles()
+      this.tempProject.state = ''
     },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
+    },
+    RhandleExceed (files, fileList) {
+      this.$message.error("上传文件不能超过1个!");
     },
     handleRemove (file, fileList) {
       this.$message.error("删除成功!");
@@ -467,11 +546,10 @@ export default {
     },
     agreeTempMember (tempMember) {
       var _this = this
-      var data = {
+      deleteTempMemberFromList({
         tid: _this.tempTeamId,
         uid: tempMember
-      }
-      deleteTempMemberFromList({ data: data }).then(res => {
+      }).then(res => {
         if (res.code === 200) {
           addTempMember({
             tid: _this.tempTeamId,
@@ -489,11 +567,10 @@ export default {
     },
     deleteATempMember (tempMember) {
       var _this = this
-      var data = {
+      deleteTempMemberFromList({
         tid: _this.tempTeamId,
         uid: tempMember
-      }
-      deleteTempMemberFromList({ data: data }).then(res => {
+      }).then(res => {
         if (res.code === 200) {
           _this.getTempMembers(_this.tempTeamId)
           _this.$message.success(res.msg)
@@ -524,22 +601,14 @@ export default {
       var _this = this
       deleteResourceFromList({
         type: 0,
-        tid: _this.tid,
+        tid: _this.tempTeamId,
         rid: resource.rid
       }).then(res => {
         if (res.code === 200) {
-          deleteResource({
-            type: 0,
-            tid: _this.tid,
-            rid: resource.rid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getResources(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
+          _this.getResources(_this.tempTeamId)
+          _this.$message('删除成功')
+        } else {
+          _this.$message('删除失败')
         }
       })
     },
@@ -678,7 +747,8 @@ export default {
   font-size: 15px;
   color: white;
 }
-.new-project {
+.new-project,
+.new-resource {
   color: white;
   font-size: 15px;
 }
