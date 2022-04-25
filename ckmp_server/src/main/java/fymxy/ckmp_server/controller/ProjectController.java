@@ -73,8 +73,9 @@ public class ProjectController {
         else {
             project.setImg(oldProject.getImg());
         }
-
-        if (projectService.update(new UpdateWrapper<>(project))){
+        UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("pid",project.getPid());
+        if (projectService.update(project,updateWrapper)){
             return new Respone(200,"修改成功",null);
         }else {
             return new Respone(400,"修改失败",null);

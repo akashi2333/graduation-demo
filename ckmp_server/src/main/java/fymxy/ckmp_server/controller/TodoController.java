@@ -60,8 +60,6 @@ public class TodoController {
             list.add(id.getTodo());
         }
         return new Respone(200,"查询成功",list);
-
-
     }
 
 }
