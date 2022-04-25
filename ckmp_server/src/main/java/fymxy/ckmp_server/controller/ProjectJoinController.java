@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectJoin;
+import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.ProjectJoinService;
+import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 public class ProjectJoinController {
     @Autowired
     ProjectJoinService projectJoinService;
+    @Autowired
+    UserService userService;
 
     @ApiOperation(value = "申请加群操作")
     @ApiResponses({
@@ -47,18 +51,19 @@ public class ProjectJoinController {
         return new Respone(200,"处理成功",null);
     }
 
-    @ApiOperation(value = "根据pid查询想进群人员id，返回int的list")
+    @ApiOperation(value = "根据pid查询想进群人员信息，返回user的list")
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
     @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByProjectId")
     private Respone getByProjectId( ProjectJoin projectJoin){
-        ArrayList<Integer> res = new ArrayList<>();
+        ArrayList<User> res = new ArrayList<>();
         for (ProjectJoin exit : projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("pid", projectJoin.getPid()))) {
-            res.add(exit.getUid());
+            res.add(userService.getById(exit.getUid()));
         }
+
         return new Respone(200,"处理成功",res);
     }
 

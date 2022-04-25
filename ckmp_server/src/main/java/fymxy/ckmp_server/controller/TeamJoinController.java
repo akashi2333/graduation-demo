@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.TeamJoin;
+import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.TeamJoinService;
+import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,6 +32,8 @@ public class TeamJoinController {
 
     @Autowired
     TeamJoinService teamJoinService;
+    @Autowired
+    UserService userService;
 
     @ApiOperation(value = "申请加  团队  操作")
     @ApiResponses({
@@ -51,17 +55,17 @@ public class TeamJoinController {
         return new Respone(200,"处理成功",null);
     }
 
-    @ApiOperation(value = "根据tid查询想进  团队  人员id，返回int的list")
+    @ApiOperation(value = "根据tid查询想进  团队  人员id，返回user的list")
     @ApiResponses({
             @ApiResponse(code = 200,message = "处理成功")
     })
     @ApiOperationSupport(ignoreParameters = {"uid"})
     @GetMapping("/getByTeamId")
     private Respone getByTeamId(TeamJoin teamJoin){
-        ArrayList<Integer> res = new ArrayList<>();
+        ArrayList<User> res = new ArrayList<>();
         for (TeamJoin exit : teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("tid", teamJoin.getTid()))) {
-            res.add(exit.getUid());
+            res.add(userService.getById(exit.getUid()));
         }
         return new Respone(200,"处理成功",res);
     }

@@ -4,6 +4,7 @@ package fymxy.ckmp_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
+import fymxy.ckmp_server.entity.ProjectResource;
 import fymxy.ckmp_server.entity.TeamResource;
 import fymxy.ckmp_server.service.TeamResourceService;
 import io.swagger.annotations.Api;
@@ -112,5 +113,24 @@ public class TeamResourceController {
     public Respone getFileList(TeamResource teamResource){
         List<TeamResource> list = teamResourceService.list(new QueryWrapper<TeamResource>().eq("tid", teamResource.getTid()));
         return new Respone(200,"获取成功",list);
+    }
+
+    @ApiOperation(value = "删除文件操作")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "删除成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {"timestamp"})
+    @DeleteMapping("/delete")
+    public Respone downloadFile(TeamResource teamResource){
+        File file = new File(basePath + teamResource.getResourceName());
+        if (!file.exists()){
+            return new Respone(200,"已删除",null);
+        }
+        teamResourceService.remove(new QueryWrapper<TeamResource>()
+                .eq("tid",teamResource.getTid())
+                .eq("uid",teamResource.getUid())
+                .eq("resource_name",teamResource.getResourceName()));
+        file.delete();
+        return new Respone(200,"删除成功",null);
     }
 }
