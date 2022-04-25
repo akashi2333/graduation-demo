@@ -58,9 +58,13 @@ public class ProjectResourceController {
 
         projectResourceService.save(projectResource);
 
+        File base = new File(basePath);
+        //应写在类创建时
+        if (!base.exists()){
+            base.mkdirs();
+        }
+
         file.transferTo(new File(basePath+originalFilename));
-
-
 
         return new Respone(200,"上传成功",null);
     }
