@@ -4,6 +4,7 @@ package fymxy.ckmp_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
+import fymxy.ckmp_server.entity.ProjectExit;
 import fymxy.ckmp_server.entity.TeamExit;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.TeamExitService;
@@ -41,6 +42,11 @@ public class TeamExitController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody TeamExit teamExit){
+        if (teamExitService.list(new QueryWrapper<TeamExit>()
+                .eq("uid",teamExit.getUid())
+                .eq("tid",teamExit.getTid()))!=null){
+            return new Respone(200,"已申请",null);
+        }
         teamExitService.save(teamExit);
         return new Respone(200,"申请成功",null);
     }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectExit;
+import fymxy.ckmp_server.entity.ProjectJoin;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.ProjectExitService;
 import fymxy.ckmp_server.service.UserService;
@@ -38,6 +39,11 @@ public class ProjectExitController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody ProjectExit projectExit){
+        if (projectExitService.list(new QueryWrapper<ProjectExit>()
+                .eq("uid",projectExit.getUid())
+                .eq("pid",projectExit.getPid()))!=null){
+            return new Respone(200,"已申请",null);
+        }
         projectExitService.save(projectExit);
         return new Respone(200,"申请成功",null);
     }

@@ -10,6 +10,7 @@ import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.ProjectService;
 import fymxy.ckmp_server.service.UserProjectService;
+import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,8 @@ public class ProjectController {
     ProjectService projectService;
     @Autowired
     UserProjectService userProjectService;
+    @Autowired
+    UserService userService;
 
     @ApiOperation(value = "新建project操作")
     @ApiOperationSupport(ignoreParameters = {"project.pid","project.timestamp"})
@@ -89,7 +92,11 @@ public class ProjectController {
     @ApiOperationSupport(ignoreParameters = {"name","uid","state","timestamp","img"})
     @GetMapping("/getSingleProjectDetail")
     private Respone getSingleProjectDetail(Project project){
-        Project res = projectService.getById(project.getPid());
+        Object[] res = new Object[2];
+        Project project1 = projectService.getById(project.getPid());
+        res[0] = project1;
+        res[1] = userService.getById(project1.getUid());
+
         return new Respone(200,"查询成功",res);
     }
 
