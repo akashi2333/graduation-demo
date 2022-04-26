@@ -37,6 +37,11 @@ public class ProjectJoinController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody ProjectJoin projectJoin){
+        if (projectJoinService.list(new QueryWrapper<ProjectJoin>()
+                .eq("uid",projectJoin.getUid())
+                .eq("pid",projectJoin.getPid()))!=null){
+            return new Respone(200,"已申请",null);
+        }
         projectJoinService.save(projectJoin);
         return new Respone(200,"申请成功",null);
     }

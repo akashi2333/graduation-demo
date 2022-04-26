@@ -4,6 +4,7 @@ package fymxy.ckmp_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
+import fymxy.ckmp_server.entity.TeamExit;
 import fymxy.ckmp_server.entity.TeamJoin;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.TeamJoinService;
@@ -41,6 +42,11 @@ public class TeamJoinController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody TeamJoin teamJoin){
+        if (teamJoinService.list(new QueryWrapper<TeamJoin>()
+                .eq("uid",teamJoin.getUid())
+                .eq("tid",teamJoin.getTid()))!=null){
+            return new Respone(200,"已申请",null);
+        }
         teamJoinService.save(teamJoin);
         return new Respone(200,"申请成功",null);
     }
