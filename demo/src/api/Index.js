@@ -49,6 +49,9 @@ export const getPAllResources = (params) => get(`/project-resource/getFileList`,
 export const downloadPResource = (params) => get(`/project-resource/download`, params)
 export const deleteResourceFromProject = (params) => deletes(`/project-resource/delete`, params)
 
+export const getAllTasks = (params) => get(`/project-task/getByPid`, params)
+
+
 //首页需求，返回List，每个List里有10条数据
 export const getAllNotices = () => get('/notice/getAll')
 export const getGoodTeams = () => get(`/team/getGood`)
@@ -61,8 +64,6 @@ export const getGoodResources = () => get(`/resource/getGood`)
 
 
 export const getPAllProgects = (params) => get(`/project/getProjects`, params)
-
-export const getAllTasks = (params) => get(`/project/getTasks`, params)
 
 export const deleteTeamFromList = (data) => post(`/team-exit/add`, data)
 
