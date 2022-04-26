@@ -80,6 +80,29 @@ CREATE TABLE `project_resource` (
   `timestamp` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*Table structure for table `project_task` */
+
+DROP TABLE IF EXISTS `project_task`;
+
+CREATE TABLE `project_task` (
+  `pid` int(11) DEFAULT NULL,
+  `detail` varchar(255) DEFAULT NULL,
+  `begin` timestamp NOT NULL DEFAULT '2020-01-01 01:01:11' ON UPDATE CURRENT_TIMESTAMP,
+  `end` timestamp NOT NULL DEFAULT '2020-01-01 01:01:12',
+  `tid` int(11) NOT NULL AUTO_INCREMENT,
+  `state` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`tid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `project_task_member` */
+
+DROP TABLE IF EXISTS `project_task_member`;
+
+CREATE TABLE `project_task_member` (
+  `tid` int(11) DEFAULT NULL,
+  `uid` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 /*Table structure for table `team` */
 
 DROP TABLE IF EXISTS `team`;
