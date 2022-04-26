@@ -110,12 +110,12 @@ export default {
             password: _this.ruleForm.password
           }).then(res => {
             if (res.code === 200) {
-              _this.$message('注册成功')
+              _this.$message.success('注册成功')
               setTimeout(function () {
                 _this.$router.push({ path: '/' })
               }, 2000)
             } else {
-              _this.$message(res.msg)
+              _this.$message.error(res.msg)
             }
           })
         } else {

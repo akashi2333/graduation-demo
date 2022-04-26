@@ -209,9 +209,9 @@ export default {
         uid: this.userId
       }).then(res => {
         if (res.code === 200) {
-          this.$message(res.msg)
+          this.$message.success(res.msg)
         } else {
-          this.$message(res.msg)
+          this.$message.error(res.msg)
         }
       })
     },

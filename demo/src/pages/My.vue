@@ -120,11 +120,6 @@
                     <div class="resource-name">{{todo}}</div>
                   </div>
                   <div class="list-right">
-                    <el-button class="finish"
-                               ref="finish"
-                               type="primary"
-                               size="small"
-                               @click="finishTodo(index)">完成</el-button>
                     <el-button type="primary"
                                size="small"
                                @click="deleteATodo(todo)">删除</el-button>
@@ -200,32 +195,17 @@ export default {
     },
     deleteATodo (todo) {
       var _this = this
-      deleteTodoFromList({
-        uid: _this.userId,
-        todoId: todo.todoId
+      deleteTodo({
+        id: _this.userId,
+        todo: todo
       }).then(res => {
         if (res.code === 200) {
-          deleteTodo({
-            uid: _this.userId,
-            todoId: todo.todoId
-          }).then(res => {
-            if (res.code === 200) {
-              _this.$message("删除成功")
-              _this.getMyTodoList(_this.userId)
-            } else {
-              _this.$message("删除失败")
-            }
-          })
+          _this.$message.success("删除成功")
+          _this.getMyTodoList(_this.userId)
+        } else {
+          _this.$message.error("删除失败")
         }
       })
-    },
-    finishTodo (index) {
-      console.log(document.getElementsByClassName("finish")[index].innerHTML)
-      if (document.getElementsByClassName("finish")[index].innerHTML === "已完成") {
-        document.getElementsByClassName("finish")[index].innerHTML = "完成"
-      } else {
-        document.getElementsByClassName("finish")[index].innerHTML = "已完成"
-      }
     },
     getMyTeams (uid) {
       getMyTeams({
@@ -261,7 +241,7 @@ export default {
     },
     quitTeam (team) {
       var _this = this
-      if (team.uid === _this.userId) {
+      if (team.isowner === 1) {
         _this.$message.error("管理员不能退出团队")
       } else {
         quitMyTeam({

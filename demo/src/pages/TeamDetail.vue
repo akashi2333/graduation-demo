@@ -10,7 +10,8 @@
       <div class="left">
         <div class="title">
           <div>{{team.name}}</div>
-          <el-button type="text"
+          <el-button v-show="isCreater"
+                     type="text"
                      class="edit-team"
                      icon="el-icon-edit"
                      @click="dialogFormVisible = true">编辑团队</el-button>
@@ -67,7 +68,7 @@
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-isowner">管理员：{{team.uid}}</p>
+          <p class="team-isowner">管理员：{{manager}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
@@ -85,7 +86,7 @@
               <div class="team-member-top">团队成员</div>
               <ul class="list">
                 <li v-for="member in members.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="member.uid"
+                    :key="member.id"
                     class="list-item">
                   <div class="list-left">
                     <i class="el-icon-caret-right"
@@ -118,7 +119,7 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="member-name">{{tempMember}}</div>
+                    <div class="member-name">{{tempMember.username}}</div>
                   </div>
                   <div class="list-right"
                        v-show="isCreater">
@@ -224,8 +225,7 @@
                                @click="goProject(project)">查看</el-button>
                     <el-button type="primary"
                                size="small"
-                               @click="deleteAProject(project)"
-                               v-show="isCreater">删除</el-button>
+                               @click="joinProject(project)">加入</el-button>
                   </div>
                 </li>
               </ul>
@@ -245,8 +245,7 @@
             <div class="resource-manage">
               <div class="resource-manage-top">
                 <div>团队资源</div>
-                <el-button v-show="isCreater"
-                           type="text"
+                <el-button type="text"
                            class="new-resource"
                            icon="el-icon-plus"
                            @click="RdialogFormVisible = true">上传资源</el-button>
@@ -308,7 +307,6 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="团队知识图谱">团队知识图谱</el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -316,12 +314,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById, downloadResource } from '../api/Index';
+import { getAllMembers, joinProject, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById, downloadResource } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
   data () {
     return {
+      manager: '',
       PdialogFormVisible: false,
       dialogFormVisible: false,
       RdialogFormVisible: false,
@@ -340,13 +339,18 @@ export default {
         img: '',
         state: ''
       },
-      options: [{
-        value: '正在进行中',
-        label: '正在进行中'
-      }, {
-        value: '已完成',
-        label: '已完成'
-      }],
+      options: [
+        {
+          value: '待开始',
+          label: '待开始'
+        },
+        {
+          value: '正在进行中',
+          label: '正在进行中'
+        }, {
+          value: '已结束',
+          label: '已结束'
+        }],
       rules: {
         name: [{
           required: true,
@@ -438,10 +442,6 @@ export default {
         this.$message.error('上传文件大小不能超过 100MB!')
       }
       return isLt2M
-    },
-    handleSuccess (response, file, fileList) {
-      this.$refs.Rupload.clearFiles()
-      this.$message.success('上传成功')
     },
     handleError (e, file, fileList) {
       const msg = JSON.parse(e.message)
@@ -541,40 +541,36 @@ export default {
     },
     deleteAMember (member) {
       var _this = this
-      deleteMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: member.uid
-      }).then(res => {
-        if (res.code === 200) {
-          deleteMember({
-            type: 0,
-            tid: _this.tid,
-            uid: member.uid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getMembers(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
-        }
-      })
+      if (member.id === _this.tempTeamOwner) {
+        _this.$message.error('管理员不能被删除')
+      } else {
+        deleteMember({
+          tid: _this.tempTeamId,
+          uid: member.id
+        }).then(res => {
+          if (res.code === 200) {
+            _this.getMembers(_this.tempTeamId)
+            _this.$message.success('删除成功')
+          } else {
+            _this.$message.error('删除失败')
+          }
+        })
+      }
     },
     agreeTempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
         tid: _this.tempTeamId,
-        uid: tempMember
+        uid: tempMember.id
       }).then(res => {
         if (res.code === 200) {
           addTempMember({
             tid: _this.tempTeamId,
-            uid: tempMember
+            uid: tempMember.id
           }).then(res => {
-            if (res === 200) {
+            if (res.code === 200) {
               _this.getTempMembers(_this.tempTeamId)
+              _this.getMembers(_this.tempTeamId)
               _this.$message.success(res.msg)
             } else {
               _this.$message.error(res.msg)
@@ -586,8 +582,8 @@ export default {
     deleteATempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
-        tid: _this.tempTeamId,
-        uid: tempMember
+        uid: tempMember.id,
+        tid: _this.tempTeamId
       }).then(res => {
         if (res.code === 200) {
           _this.getTempMembers(_this.tempTeamId)
@@ -602,31 +598,30 @@ export default {
       this.$store.commit('setTempProjectOwner', project.uid)
       this.$router.push({ path: `/ProjectDetail/${project.pid}` });
     },
-    deleteAProject (project) {
-      var _this = this
-      deleteProjectFromList({
-        tid: _this.tempTeamId,
-        pid: project.pid
+    joinProject (project) {
+      joinProject({
+        pid: project.pid,
+        uid: this.userId
       }).then(res => {
-        if (res === 200) {
-          _this.$message.success(res.msg)
+        if (res.code === 200) {
+          this.$message.success(res.msg)
         } else {
-          _this.$message.error(res.msg)
+          this.$message.error(res.msg)
         }
       })
     },
-    deleteAresource (resource) {
+    deleteAResource (resource) {
       var _this = this
       deleteResourceFromList({
-        type: 0,
-        tid: _this.tempTeamId,
-        rid: resource.rid
+        uid: this.userId,
+        tid: this.tempTeamId,
+        resourceName: resource.resourceName
       }).then(res => {
         if (res.code === 200) {
           _this.getResources(_this.tempTeamId)
-          _this.$message('删除成功')
+          _this.$message.success('删除成功')
         } else {
-          _this.$message('删除失败')
+          _this.$message.error('删除失败')
         }
       })
     },
@@ -636,7 +631,8 @@ export default {
     getTeam (id) {
       searchTeamById({ tid: id }).then(res => {
         if (res.code === 200) {
-          this.team = res.data
+          this.team = res.data[0]
+          this.manager = res.data[1].username
         }
       })
     },

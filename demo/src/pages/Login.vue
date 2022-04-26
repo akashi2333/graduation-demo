@@ -79,7 +79,7 @@ export default {
         password: _this.ruleForm.password
       }).then(res => {
         if (res.code === 200) {
-          _this.$message('登录成功')
+          _this.$message.success('登录成功')
           _this.$store.commit('setUserId', res.data)
           _this.$store.commit('setUserEmail', _this.ruleForm.email)
           _this.$store.commit('setUserName', _this.ruleForm.userName)
@@ -88,7 +88,7 @@ export default {
             _this.$router.push({ path: '/' })
           }, 2000)
         } else {
-          _this.$message(res.msg)
+          _this.$message.error(res.msg)
         }
       })
     },
