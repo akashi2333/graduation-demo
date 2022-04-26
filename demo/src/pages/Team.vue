@@ -43,7 +43,6 @@
                        :on-exceed="handleExceed"
                        :auto-upload="false"
                        :on-error="uploadError"
-                       :before-upload="handleBeforeUpload"
                        :on-change="changeFile">
               <i class="el-icon-plus"></i>
             </el-upload>
@@ -134,16 +133,6 @@ export default {
     this.getAllTeams()
   },
   methods: {
-    handleBeforeUpload (file) {
-      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
-        'image/jpeg')) {
-        this.$message.error("请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片");
-      }
-      let size = file.size / 1024 / 1024 / 2
-      if (size > 2) {
-        this.$message.error("图片大小必须小于2M");
-      }
-    },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
     },
@@ -186,7 +175,7 @@ export default {
             console.log(res)
           })
         } else {
-          this.message({
+          this.$message({
             message: "error",
             type: 'error'
           })
@@ -197,6 +186,7 @@ export default {
     cancel (formName) {
       this.dialogFormVisible = false
       this.$refs[formName].resetFields()
+      this.$refs.upload.clearFiles()
     },
     handleCurrentChange (val) {
       this.currentPage = val
@@ -209,8 +199,8 @@ export default {
       })
     },
     goTeam (team) {
-      this.$store.commit('setTempTeamId', team.tid);
-      this.$store.commit('setTempTeamOwner', team.isowner)
+      this.$store.commit('setTempTeamId', team.tid)
+      this.$store.commit('setTempTeamOwner', team.uid)
       this.$router.push({ path: `/TeamDetail/${team.tid}` });
     },
     join (team) {
@@ -219,9 +209,9 @@ export default {
         uid: this.userId
       }).then(res => {
         if (res.code === 200) {
-          this.$message(res.msg)
+          this.$message.success(res.msg)
         } else {
-          this.$message(res.msg)
+          this.$message.error(res.msg)
         }
       })
     },

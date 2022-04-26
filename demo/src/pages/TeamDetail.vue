@@ -10,7 +10,8 @@
       <div class="left">
         <div class="title">
           <div>{{team.name}}</div>
-          <el-button type="text"
+          <el-button v-show="isCreater"
+                     type="text"
                      class="edit-team"
                      icon="el-icon-edit"
                      @click="dialogFormVisible = true">编辑团队</el-button>
@@ -41,7 +42,6 @@
                            :on-exceed="handleExceed"
                            :auto-upload="false"
                            :on-error="uploadError"
-                           :before-upload="handleBeforeUpload"
                            :on-change="changeFile">
                   <i class="el-icon-plus"></i>
                 </el-upload>
@@ -68,7 +68,7 @@
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="team-isowner">管理员：{{team.isowner}}</p>
+          <p class="team-isowner">管理员：{{manager}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
@@ -86,12 +86,12 @@
               <div class="team-member-top">团队成员</div>
               <ul class="list">
                 <li v-for="member in members.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="member.uid"
+                    :key="member.id"
                     class="list-item">
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="member-name">{{member.name}}</div>
+                    <div class="member-name">{{member.username}}</div>
                   </div>
                   <div class="list-right"
                        v-show="isCreater">
@@ -119,7 +119,7 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="member-name">{{tempMember.name}}</div>
+                    <div class="member-name">{{tempMember.username}}</div>
                   </div>
                   <div class="list-right"
                        v-show="isCreater">
@@ -146,7 +146,64 @@
         <el-tab-pane label="项目管理">
           <div class="project">
             <div class="project-manage">
-              <div class="project-manage-top">团队项目</div>
+              <div class="project-manage-top">
+                <div>团队项目</div>
+                <el-button v-show="isCreater"
+                           type="text"
+                           class="new-project"
+                           icon="el-icon-plus"
+                           @click="PdialogFormVisible = true">新建项目</el-button>
+                <el-dialog title="新建项目"
+                           :visible.sync="PdialogFormVisible"
+                           width="50%">
+                  <el-form label-position="right"
+                           label-width="20%"
+                           :model="tempProject"
+                           :rules="Prules"
+                           ref="tempProject">
+                    <el-form-item label="项目名称"
+                                  prop="name">
+                      <el-input v-model="tempProject.name"
+                                placeholder="请输入项目名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="项目图片"
+                                  prop="file">
+                      <el-upload action="uploadAction"
+                                 list-type="picture-card"
+                                 :on-remove="handleRemove"
+                                 :limit="1"
+                                 :show-file-list="true"
+                                 name="img"
+                                 ref="Pupload"
+                                 :data="tempProject"
+                                 accept="image/png,image/gif,image/jpg,image/jpeg"
+                                 :on-exceed="handleExceed"
+                                 :auto-upload="false"
+                                 :on-error="uploadError"
+                                 :on-change="PchangeFile">
+                        <i class="el-icon-plus"></i>
+                      </el-upload>
+                    </el-form-item>
+                    <el-form-item label="项目状态"
+                                  prop="status">
+                      <el-select v-model="tempProject.state"
+                                 placeholder="请选择">
+                        <el-option v-for="item in options"
+                                   :key="item.value"
+                                   :label="item.label"
+                                   :value="item.value">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-form>
+                  <span slot="footer"
+                        class="dialog-footer">
+                    <el-button @click="Pcancel('tempProject')">取 消</el-button>
+                    <el-button type="primary"
+                               @click="createProject('tempProject')">确 定</el-button>
+                  </span>
+                </el-dialog>
+              </div>
               <ul class="list">
                 <li v-for="project in projects.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="project.pid"
@@ -157,7 +214,10 @@
                     <div class="project-name">{{project.name}}</div>
                   </div>
                   <div class="list-center">
-                    {{project.time}}
+                    {{project.timestamp}}
+                  </div>
+                  <div class="list-center">
+                    {{project.state}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
@@ -165,8 +225,7 @@
                                @click="goProject(project)">查看</el-button>
                     <el-button type="primary"
                                size="small"
-                               @click="deleteAProject(project)"
-                               v-show="isCreater">删除</el-button>
+                               @click="joinProject(project)">加入</el-button>
                   </div>
                 </li>
               </ul>
@@ -184,7 +243,36 @@
         <el-tab-pane label="团队资源管理">
           <div class="resource">
             <div class="resource-manage">
-              <div class="resource-manage-top">团队资源</div>
+              <div class="resource-manage-top">
+                <div>团队资源</div>
+                <el-button type="text"
+                           class="new-resource"
+                           icon="el-icon-plus"
+                           @click="RdialogFormVisible = true">上传资源</el-button>
+                <el-dialog title="上传资源"
+                           :visible.sync="RdialogFormVisible"
+                           width="50%">
+                  <el-upload ref="Rupload"
+                             :limit="1"
+                             :on-exceed="RhandleExceed"
+                             :before-upload="beforeUpload"
+                             :auto-upload="false"
+                             :on-change="RchangeFile"
+                             :on-error="handleError"
+                             action="wgg">
+                    <div style="font-size:15px;color:#409eff;margin-bottom:5px"><i class="el-icon-upload" /> 添加文件</div>
+                    <div slot="tip"
+                         class="el-upload__tip">可上传任意格式文件，且不超过100M</div>
+                  </el-upload>
+                  <span slot="footer"
+                        class="dialog-footer">
+                    <el-button @click="Rcancel()">取 消</el-button>
+                    <el-button type="primary"
+                               :loading="loading"
+                               @click="createResource()">确 定</el-button>
+                  </span>
+                </el-dialog>
+              </div>
               <ul class="list">
                 <li v-for="resource in resources.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                     :key="resource.rid"
@@ -192,15 +280,15 @@
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="resource-name">{{resource.name}}</div>
+                    <div class="resource-name">{{resource.resourceName}}</div>
                   </div>
                   <div class="list-center">
-                    {{resource.time}}
+                    {{resource.timestamp}}
                   </div>
                   <div class="list-right">
                     <el-button type="primary"
                                size="small"
-                               @click="goResource(resource)">查看</el-button>
+                               @click="download(resource)">下载</el-button>
                     <el-button type="primary"
                                size="small"
                                @click="deleteAResource(resource)"
@@ -219,7 +307,6 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="团队知识图谱">团队知识图谱</el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -227,21 +314,43 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getAllMembers, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteProject, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, deleteTempMember, deleteResourceFromList, deleteResource, searchTeamById } from '../api/Index';
+import { getAllMembers, joinProject, newResource, editTeam, getAllProgects, getAllResources, getAllTempMembers, deleteProjectFromList, deleteMemberFromList, deleteMember, deleteTempMemberFromList, addTempMember, newProject, deleteResourceFromList, searchTeamById, downloadResource } from '../api/Index';
 
 export default {
   name: 'TeamDetail',
   data () {
     return {
+      manager: '',
+      PdialogFormVisible: false,
       dialogFormVisible: false,
+      RdialogFormVisible: false,
       pageSize: 5,
       currentPage: 1,
       isCreater: false,
+      loading: false,
+      uploadFile: '',
       team: {},
       members: [],
       projects: [],
       resources: [],
       tempMembers: [],
+      tempProject: {
+        name: '',
+        img: '',
+        state: ''
+      },
+      options: [
+        {
+          value: '待开始',
+          label: '待开始'
+        },
+        {
+          value: '正在进行中',
+          label: '正在进行中'
+        }, {
+          value: '已结束',
+          label: '已结束'
+        }],
       rules: {
         name: [{
           required: true,
@@ -254,8 +363,16 @@ export default {
           trigger: "blur"
         }]
       },
+      Prules: {
+        name: [{
+          required: true,
+          message: "请输入项目名称",
+          trigger: "blur"
+        }]
+      },
       dialogImageUrl: '',
-      uploadFiles: ''
+      uploadFiles: '',
+      PuploadFiles: ''
     }
   },
   computed: {
@@ -276,18 +393,107 @@ export default {
     this.getResources(this.tempTeamId)
   },
   methods: {
-    handleBeforeUpload (file) {
-      if (!(file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/jpg' || file.type ===
-        'image/jpeg')) {
-        this.$message.error("请上传格式为image/png, image/gif, image/jpg, image/jpeg的图片");
+    download (resource) {
+      downloadResource({
+        uid: this.userId,
+        tid: this.tempTeamId,
+        resourceName: resource.resourceName
+      }).then(res => {
+        let url = `http://localhost:8888/team-resource/download?resourceName=${resource.resourceName}&tid=${this.tempTeamId}&uid=${this.userId}`
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.download = decodeURIComponent(resource.resourceName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        this.$message.success('下载成功')
+      })
+    },
+    createResource () {
+      let fd = new FormData();
+      fd.append('tid', this.tempTeamId)
+      fd.append('uid', this.userId)
+      fd.append('file', this.uploadFile)
+      newResource(fd).then(res => {
+        if (res.code === 200) {
+          this.RdialogFormVisible = false
+          this.$refs.Rupload.clearFiles()
+          this.getResources(this.tempTeamId)
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error(res.msg);
+        }
+      })
+    },
+    RchangeFile (file, fileList) {
+      this.uploadFile = file.raw
+    },
+    Rcancel () {
+      this.RdialogFormVisible = false
+      this.$refs.Rupload.clearFiles()
+    },
+    beforeUpload (file) {
+      let isLt2M = true
+      isLt2M = file.size / 1024 / 1024 < 100
+      if (!isLt2M) {
+        this.loading = false
+        this.$message.error('上传文件大小不能超过 100MB!')
       }
-      let size = file.size / 1024 / 1024 / 2
-      if (size > 2) {
-        this.$message.error("图片大小必须小于2M");
-      }
+      return isLt2M
+    },
+    handleError (e, file, fileList) {
+      const msg = JSON.parse(e.message)
+      this.$message.error(msg.message)
+      this.loading = false
+    },
+    createProject (formName) {
+      this.$refs[formName].validate((valid) => {
+        let fd = new FormData();
+        fd.append('tid', this.tempTeamId)
+        fd.append('uid', this.userId)
+        fd.append('name', this.tempProject.name);
+        fd.append('state', this.tempProject.state);
+        fd.append('file', this.PuploadFiles);
+
+        if (valid) {
+          newProject(fd).then(res => {
+            if (res.code === 200) {
+              this.PdialogFormVisible = false
+              //新增完清空表单内容
+              setTimeout(() => {
+                this.$refs.tempProject.resetFields()
+                this.$refs.Pupload.clearFiles()
+                this.tempProject.state = ''
+              }, 200)
+              this.getProjects(this.tempTeamId)
+              this.$message.success(res.msg)
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).catch(res => {
+            console.log(res)
+          })
+        } else {
+          this.$message({
+            message: "error",
+            type: 'error'
+          })
+        }
+      })
+    },
+    Pcancel (formName) {
+      this.PdialogFormVisible = false
+      this.$refs[formName].resetFields()
+      this.$refs.Pupload.clearFiles()
+      this.tempProject.state = ''
     },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
+    },
+    RhandleExceed (files, fileList) {
+      this.$message.error("上传文件不能超过1个!");
     },
     handleRemove (file, fileList) {
       this.$message.error("删除成功!");
@@ -298,6 +504,9 @@ export default {
     },
     changeFile (file, fileList) {
       this.uploadFiles = fileList[0].raw
+    },
+    PchangeFile (file, fileList) {
+      this.PuploadFiles = fileList[0].raw
     },
     edit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -323,7 +532,7 @@ export default {
             console.log(res)
           })
         } else {
-          this.message({
+          this.$message({
             message: "error",
             type: 'error'
           })
@@ -332,45 +541,39 @@ export default {
     },
     deleteAMember (member) {
       var _this = this
-      deleteMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: member.uid
-      }).then(res => {
-        if (res.code === 200) {
-          deleteMember({
-            type: 0,
-            tid: _this.tid,
-            uid: member.uid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getMembers(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
-        }
-      })
+      if (member.id === _this.tempTeamOwner) {
+        _this.$message.error('管理员不能被删除')
+      } else {
+        deleteMember({
+          tid: _this.tempTeamId,
+          uid: member.id
+        }).then(res => {
+          if (res.code === 200) {
+            _this.getMembers(_this.tempTeamId)
+            _this.$message.success('删除成功')
+          } else {
+            _this.$message.error('删除失败')
+          }
+        })
+      }
     },
     agreeTempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: tempMember.uid
+        tid: _this.tempTeamId,
+        uid: tempMember.id
       }).then(res => {
         if (res.code === 200) {
           addTempMember({
-            type: 0,
-            tid: _this.tid,
-            uid: tempMember.uid
+            tid: _this.tempTeamId,
+            uid: tempMember.id
           }).then(res => {
-            if (res === 200) {
-              _this.getTempMembers(_this.tid)
-              _this.$message('添加成功')
+            if (res.code === 200) {
+              _this.getTempMembers(_this.tempTeamId)
+              _this.getMembers(_this.tempTeamId)
+              _this.$message.success(res.msg)
             } else {
-              _this.$message('添加失败')
+              _this.$message.error(res.msg)
             }
           })
         }
@@ -379,77 +582,48 @@ export default {
     deleteATempMember (tempMember) {
       var _this = this
       deleteTempMemberFromList({
-        type: 0,
-        tid: _this.tid,
-        uid: tempMember.uid
+        uid: tempMember.id,
+        tid: _this.tempTeamId
       }).then(res => {
         if (res.code === 200) {
-          deleteTempMember({
-            type: 0,
-            tid: _this.tid,
-            uid: tempMember.uid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getTempMembers(_this.tid)
-              _this.$message('拒绝成功')
-            } else {
-              _this.$message('拒绝失败')
-            }
-          })
+          _this.getTempMembers(_this.tempTeamId)
+          _this.$message.success(res.msg)
+        } else {
+          _this.$message.error(res.msg)
         }
       })
     },
     goProject (project) {
-      this.$store.commit('setTempProjectList', project)
+      this.$store.commit('setTempProjectId', project.pid)
+      this.$store.commit('setTempProjectOwner', project.uid)
       this.$router.push({ path: `/ProjectDetail/${project.pid}` });
     },
-    deleteAProject (project) {
-      var _this = this
-      deleteProjectFromList({
-        tid: _this.tid,
-        pid: project.pid
-      }).then(res => {
-        if (res === 200) {
-          deleteProject({
-            tid: _this.tid,
-            pid: project.pid
-          }).then(res => {
-            if (res === 200) {
-              _this.getProjects(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
-        }
-      })
-    },
-    deleteAresource (resource) {
-      var _this = this
-      deleteResourceFromList({
-        type: 0,
-        tid: _this.tid,
-        rid: resource.rid
+    joinProject (project) {
+      joinProject({
+        pid: project.pid,
+        uid: this.userId
       }).then(res => {
         if (res.code === 200) {
-          deleteResource({
-            type: 0,
-            tid: _this.tid,
-            rid: resource.rid
-          }).then(res => {
-            if (res.code === 200) {
-              _this.getResources(_this.tid)
-              _this.$message('删除成功')
-            } else {
-              _this.$message('删除失败')
-            }
-          })
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error(res.msg)
         }
       })
     },
-    goResource (resource) {
-      this.$store.commit('setTempResourceList', resource)
-      this.$router.push({ path: `/ResourceDetail/${resource.rid}` })
+    deleteAResource (resource) {
+      var _this = this
+      deleteResourceFromList({
+        uid: this.userId,
+        tid: this.tempTeamId,
+        resourceName: resource.resourceName
+      }).then(res => {
+        if (res.code === 200) {
+          _this.getResources(_this.tempTeamId)
+          _this.$message.success('删除成功')
+        } else {
+          _this.$message.error('删除失败')
+        }
+      })
     },
     handleCurrentChange (val) {
       this.currentPage = val
@@ -457,9 +631,8 @@ export default {
     getTeam (id) {
       searchTeamById({ tid: id }).then(res => {
         if (res.code === 200) {
-          this.team = res.data
-        } else {
-          console.log(res.msg)
+          this.team = res.data[0]
+          this.manager = res.data[1].username
         }
       })
     },
@@ -476,8 +649,6 @@ export default {
       getAllTempMembers({ tid: id }).then(res => {
         if (res.code === 200) {
           this.tempMembers = res.data
-        } else {
-          console.log(res.msg)
         }
       })
     },
@@ -564,9 +735,7 @@ export default {
   width: 100%;
   height: 330px;
 }
-.team-member-top,
-.project-manage-top,
-.resource-manage-top {
+.team-member-top {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -575,6 +744,23 @@ export default {
   background-color: #409eff;
   font-size: 15px;
   color: white;
+}
+.project-manage-top,
+.resource-manage-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1%;
+  width: 98%;
+  height: 40px;
+  background-color: #409eff;
+  font-size: 15px;
+  color: white;
+}
+.new-project,
+.new-resource {
+  color: white;
+  font-size: 15px;
 }
 .list {
   width: 100%;

@@ -1,44 +1,32 @@
 const Project = {
   state: {
-    tempProjectList: {},
-    tempTaskList: {},
-    tempTodoList: {},
+    tempProjectId: 0,
+    tempProjectOwner: 0,
   },
   getters: {
-    tempProjectList: state => {
-      let tempProjectList = state.tempProjectList
-      if (JSON.stringify(tempProjectList) === '{}') {
-        tempProjectList = JSON.parse(window.sessionStorage.getItem('tempProjectList') || null)
+    tempProjectId: state => {
+      let tempProjectId = state.tempProjectId
+      if (JSON.stringify(tempProjectId) === 0) {
+        tempProjectId = JSON.parse(window.sessionStorage.getItem('tempProjectId') || null)
       }
-      return tempProjectList
+      return tempProjectId
     },
-    tempTaskList: state => {
-      let tempTaskList = state.tempTaskList
-      if (JSON.stringify(tempTaskList) === '{}') {
-        tempTaskList = JSON.parse(window.sessionStorage.getItem('tempTaskList') || null)
+    tempProjectOwner: state => {
+      let tempProjectOwner = state.tempProjectOwner
+      if (JSON.stringify(tempProjectOwner) === 0) {
+        tempProjectOwner = JSON.parse(window.sessionStorage.getItem('tempProjectOwner') || null)
       }
-      return tempTaskList
-    },
-    tempTodoList: state => {
-      let tempTodoList = state.tempTodoList
-      if (JSON.stringify(tempTodoList) === '{}') {
-        tempTodoList = JSON.parse(window.sessionStorage.getItem('tempTodoList') || null)
-      }
-      return tempTodoList
+      return tempProjectOwner
     }
   },
   mutations: {
-    setTempProjectList: (state, tempProjectList) => {
-      state.tempProjectList = tempProjectList
-      window.sessionStorage.setItem('tempProjectList', JSON.stringify(tempProjectList))
+    setTempProjectId: (state, tempProjectId) => {
+      state.tempProjectId = tempProjectId
+      window.sessionStorage.setItem('tempProjectId', JSON.stringify(tempProjectId))
     },
-    setTempTaskList: (state, tempTaskList) => {
-      state.tempTaskList = tempTaskList
-      window.sessionStorage.setItem('tempTaskList', JSON.stringify(tempTaskList))
-    },
-    setTempTodoList: (state, tempTodoList) => {
-      state.tempTodoList = tempTodoList
-      window.sessionStorage.setItem('tempTodoList', JSON.stringify(tempTodoList))
+    setTempProjectOwner: (state, tempProjectOwner) => {
+      state.tempProjectOwner = tempProjectOwner
+      window.sessionStorage.setItem('tempProjectOwner', JSON.stringify(tempProjectOwner))
     }
   },
   actions: {

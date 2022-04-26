@@ -85,7 +85,7 @@ public class TeamResourceController {
         response.setHeader("Content-Disposition", "attachment;filename=" +  new String(file.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
 
         //存在报错
-        //response.setContentType("application/force-download");
+//        response.setContentType("application/force-download");
 
         inputStream=new  FileInputStream(file);
         bufferedInputStream=new BufferedInputStream(inputStream);

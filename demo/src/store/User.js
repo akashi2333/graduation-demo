@@ -1,6 +1,6 @@
 const User = {
   state: {
-    userId: '',
+    userId: 0,
     userName: '',
     userEmail: '',
     loginState: false
@@ -30,7 +30,7 @@ const User = {
     loginState: state => {
       let loginState = state.loginState
       if (!loginState) {
-        loginState = JSON.parse(window.localStorage.getItem('loginState') || null)
+        loginState = JSON.parse(window.sessionStorage.getItem('loginState') || null)
       }
       return loginState
     }
