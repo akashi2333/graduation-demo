@@ -53,9 +53,11 @@ export function post (url, data = {}) {
    * @returns {Promise}
    */
 
-export function deletes (url, data = {}) {
+export function deletes (url, params = {}) {
   return new Promise((resolve, reject) => {
-    axios.delete(url, data)
+    axios.delete(url, {
+      params: params
+    })
       .then(response => {
         resolve(response.data);
       }, err => {
