@@ -9,6 +9,7 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import Search from '../pages/Search'
 import ProjectDetail from '../pages/ProjectDetail'
+import Task from '../pages/Task'
 
 Vue.use(Router)
 
@@ -48,6 +49,11 @@ export default new Router({
       path: '/ProjectDetail/:pid',
       name: '/ProjectDetail',
       component: ProjectDetail
+    },
+    {
+      path: '/Task/:taskId',
+      name: '/Task',
+      component: Task
     },
     {
       path: '/Login',

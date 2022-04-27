@@ -51,7 +51,7 @@ export default {
       searchTeamById({ tid: teamId }).then(res => {
         if (res.code === 200) {
           console.log(res.data)
-          this.team = res.data
+          this.team = res.data[0]
           this.isExsited = true
         } else {
           this.isExsited = false

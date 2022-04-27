@@ -50,6 +50,12 @@ export const downloadPResource = (params) => get(`/project-resource/download`, p
 export const deleteResourceFromProject = (params) => deletes(`/project-resource/delete`, params)
 
 export const getAllTasks = (params) => get(`/project-task/getByPid`, params)
+export const newTask = (data) => post(`/project-task/add`, data)
+export const getATask = (params) => get(`/project-task/getByTaskId`, params)
+export const deleteATask = (params) => deletes(`/project-task/delete`, params)
+export const editTask = (data) => put(`/project-task/update`, data)
+
+export const getTaskMembers = (params) => get(`/project-task-member/getByTaskId`, params)
 
 
 //首页需求，返回List，每个List里有10条数据
@@ -58,33 +64,4 @@ export const getGoodTeams = () => get(`/team/getGood`)
 export const getGoodResources = () => get(`/resource/getGood`)
 
 
-
-
-
-
-
-export const getPAllProgects = (params) => get(`/project/getProjects`, params)
-
-export const deleteTeamFromList = (data) => post(`/team-exit/add`, data)
-
-export const deleteProjectFromList = (data) => post(`/project-exit/add`, data) //从列表中删除项目
-export const deleteProject = (data) => deletes(`/project-exit/delete`, data)//删除项目
-
-export const deleteMemberFromList = (data) => post(`/member-exit/add`, data)
-
-export const deleteTempMember = (data) => deletes(`/tempMember-exit`, data)
-
-export const deleteResource = (data) => deletes(`/resource-exit/delete`, data)
-export const deleteTaskFromList = (data) => post(`/task-exit/add`, data)
-export const deletetask = (data) => deletes(`/task-exit/delete`, data)
-export const deleteTodoFromList = (data) => post(`/todolist-exit/add`, data)
-
-
-export const getAllComments = (params) => get(`/resource/getComments`, params)
-export const sendComment = (data) => post(`/resource/postComment`, data)
-export const sendLike = (data) => post(`/resource/postUp`, data)
-export const deleteLike = (data) => post(`/resource/postUp`, data)
-
-export const editTask = (data) => post(`/task/edit`, data)
-export const editTodo = (data) => post(`/todo/edit`, data)
 

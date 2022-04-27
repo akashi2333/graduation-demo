@@ -39,7 +39,7 @@ public class ProjectJoinController {
     private Respone add(@RequestBody ProjectJoin projectJoin){
         if (projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("uid",projectJoin.getUid())
-                .eq("pid",projectJoin.getPid()))!=null){
+                .eq("pid",projectJoin.getPid())).size() != 0){
             return new Respone(200,"已申请",null);
         }
         projectJoinService.save(projectJoin);
