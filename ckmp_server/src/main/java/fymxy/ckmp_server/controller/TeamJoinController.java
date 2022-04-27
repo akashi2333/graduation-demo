@@ -44,7 +44,11 @@ public class TeamJoinController {
     private Respone add(@RequestBody TeamJoin teamJoin){
         if (teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("uid",teamJoin.getUid())
+<<<<<<< HEAD
                 .eq("tid",teamJoin.getTid())).size() != 0){
+=======
+                .eq("tid",teamJoin.getTid())).size()!=0){
+>>>>>>> master
             return new Respone(200,"已申请",null);
         }
         teamJoinService.save(teamJoin);
