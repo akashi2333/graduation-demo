@@ -8,6 +8,7 @@ import fymxy.ckmp_server.entity.ProjectTask;
 import fymxy.ckmp_server.entity.ProjectTaskMember;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.ProjectTaskMemberService;
+import fymxy.ckmp_server.service.ProjectTaskService;
 import fymxy.ckmp_server.service.UserService;
 import fymxy.ckmp_server.vo.AddTask;
 import io.swagger.annotations.Api;
@@ -35,6 +36,8 @@ public class ProjectTaskMemberController {
     ProjectTaskMemberService projectTaskMemberService;
     @Autowired
     UserService userService;
+    @Autowired
+    ProjectTaskService projectTaskService;
 
 
     @ApiOperation(value = "通过taskId查人员,返回人员列表")
@@ -72,6 +75,21 @@ public class ProjectTaskMemberController {
                 .eq("tid",projectTaskMember.getTaskId())
                 .eq("uid",projectTaskMember.getUid()));
         return new Respone(200,"处理成功",null);
+    }
+
+    @ApiOperation(value = "通过uid查任务,返回任务列表")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "处理成功")
+    })
+    @ApiOperationSupport(ignoreParameters = {"taskId"})
+    @GetMapping("/getTaskByUid")
+    private Respone getTaskByUid(ProjectTaskMember projectTaskMember){
+        ArrayList<ProjectTask> res = new ArrayList<>();
+        for (ProjectTaskMember taskMember : projectTaskMemberService.list(new QueryWrapper<ProjectTaskMember>()
+                .eq("uid", projectTaskMember.getUid()))) {
+            res.add(projectTaskService.getById(taskMember.getTaskId()));
+        }
+        return new Respone(200,"处理成功",res);
     }
 
 }
