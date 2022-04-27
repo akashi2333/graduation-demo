@@ -4,10 +4,12 @@ package fymxy.ckmp_server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
+import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.TeamExit;
 import fymxy.ckmp_server.entity.TeamJoin;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.service.TeamJoinService;
+import fymxy.ckmp_server.service.TeamService;
 import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +37,8 @@ public class TeamJoinController {
     TeamJoinService teamJoinService;
     @Autowired
     UserService userService;
+    @Autowired
+    TeamService teamService;
 
     @ApiOperation(value = "申请加  团队  操作")
     @ApiResponses({
@@ -42,6 +46,11 @@ public class TeamJoinController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody TeamJoin teamJoin){
+        if (teamService.list(new QueryWrapper<Team>()
+                .eq("uid",teamJoin.getUid())
+                .eq("tid",teamJoin.getTid())).size()!=0){
+            return new Respone(200,"已加入",null);
+        }
         if (teamJoinService.list(new QueryWrapper<TeamJoin>()
                 .eq("uid",teamJoin.getUid())
                 .eq("tid",teamJoin.getTid())).size()!=0){

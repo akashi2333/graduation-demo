@@ -6,7 +6,9 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectJoin;
 import fymxy.ckmp_server.entity.User;
+import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.ProjectJoinService;
+import fymxy.ckmp_server.service.UserProjectService;
 import fymxy.ckmp_server.service.UserService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class ProjectJoinController {
     ProjectJoinService projectJoinService;
     @Autowired
     UserService userService;
+    @Autowired
+    UserProjectService userProjectService;
 
     @ApiOperation(value = "申请加群操作")
     @ApiResponses({
@@ -37,6 +41,11 @@ public class ProjectJoinController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody ProjectJoin projectJoin){
+        if (userProjectService.list(new QueryWrapper<UserProject>()
+                .eq("uid",projectJoin.getUid())
+                .eq("pid",projectJoin.getPid())).size()!=0){
+            return new Respone(200,"已加入",null);
+        }
         if (projectJoinService.list(new QueryWrapper<ProjectJoin>()
                 .eq("uid",projectJoin.getUid())
                 .eq("pid",projectJoin.getPid())).size()!=0){
