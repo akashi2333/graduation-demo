@@ -74,7 +74,7 @@
         <div class="item">
           <i class="el-icon-caret-right"
              style="color:#409EFF; font-size:25px"></i>
-          <p class="project-isowner">管理员：{{project.uid}}</p>
+          <p class="project-isowner">管理员：{{manager}}</p>
         </div>
         <div class="item">
           <i class="el-icon-caret-right"
@@ -221,37 +221,89 @@
             <div class="resource-manage">
               <div class="resource-manage-top">
                 <div>项目任务</div>
-
+                <el-button v-show="isCreater"
+                           type="text"
+                           class="new-resource"
+                           icon="el-icon-plus"
+                           @click="dialogVisible = true">新建任务</el-button>
+                <el-dialog title="新建任务"
+                           :visible.sync="dialogVisible"
+                           width="50%">
+                  <el-form label-position="right"
+                           label-width="20%"
+                           :model="tempTask"
+                           :rules="rules"
+                           ref="tempTask">
+                    <el-form-item label="任务内容"
+                                  prop="detail">
+                      <el-input v-model="tempTask.detail"
+                                placeholder="请输入任务内容"></el-input>
+                    </el-form-item>
+                    <el-form-item label="参与人员"
+                                  prop="taskMembers">
+                      <el-select v-model="taskMembers"
+                                 multiple
+                                 placeholder="请选择">
+                        <el-option v-for="member in Tmembers"
+                                   :key="member.id"
+                                   :label="member.username"
+                                   :value="member.id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="开始时间"
+                                  prop="begin">
+                      <el-date-picker v-model="tempTask.begin"
+                                      type="date"
+                                      value-format="yyyy-MM-dd"
+                                      placeholder="选择日期">
+                      </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="结束时间"
+                                  prop="end">
+                      <el-date-picker v-model="tempTask.end"
+                                      type="date"
+                                      value-format="yyyy-MM-dd"
+                                      placeholder="选择日期">
+                      </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="任务状态"
+                                  prop="state">
+                      <el-select v-model="tempTask.state"
+                                 placeholder="请选择">
+                        <el-option v-for="item in options"
+                                   :key="item.value"
+                                   :label="item.label"
+                                   :value="item.value">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-form>
+                  <span slot="footer"
+                        class="dialog-footer">
+                    <el-button @click="cancel('tempTask')">取 消</el-button>
+                    <el-button type="primary"
+                               @click="createTask('tempTask')">确 定</el-button>
+                  </span>
+                </el-dialog>
               </div>
               <ul class="list">
                 <li v-for="task in tasks.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="task.taId"
+                    :key="task.taskId"
                     class="list-item">
                   <div class="list-left">
                     <i class="el-icon-caret-right"
                        style="color:#409EFF; font-size:25px"></i>
-                    <div class="resource-name">{{task.content}}</div>
+                    <div class="resource-name">{{task.detail}}</div>
                   </div>
-                  <div class="list-center">
-                    {{task.time}}
-                  </div>
-                  <div class="list-center">
-                    {{task.deadline}}
-                  </div>
-                  <div class="list-center">
-                    <span v-for="member in task.members"
-                          :key="member.index">{{member}} </span>
-                  </div>
+                  <div class="list-center">{{task.state}}</div>
                   <div class="list-right">
-                    <el-button class="finish"
-                               ref="finish"
-                               type="primary"
-                               size="small">完成</el-button>
-                    <el-button style="margin-left:0"
-                               type="primary"
-                               size="small">编辑</el-button>
                     <el-button type="primary"
-                               size="small">删除</el-button>
+                               size="small"
+                               @click="goTask(task)">查看</el-button>
+                    <el-button type="primary"
+                               size="small"
+                               @click="deleteTask(task)">删除</el-button>
                   </div>
                 </li>
               </ul>
@@ -273,7 +325,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deletetask, deleteResourceFromProject, downloadPResource, newPResource, deletePMember, addPTempMember, deleteTempMemberFromProject, getProjectById, editProject, deleteTaskFromList, editTask, getAllTasks, getPAllMembers, getPAllResources, getPAllTempMembers } from '../api/Index';
+import { deleteATask, newTask, deleteResourceFromProject, downloadPResource, newPResource, deletePMember, addPTempMember, deleteTempMemberFromProject, getProjectById, editProject, getAllTasks, getPAllMembers, getPAllResources, getPAllTempMembers } from '../api/Index';
 
 export default {
   name: 'ProjectDetail',
@@ -284,17 +336,19 @@ export default {
       pageSize: 5,
       currentPage: 1,
       isCreater: false,
-      pid: 0,
       project: {},
       members: [],
       tempMembers: [],
       resources: [],
       tasks: [],
-      tempMembers: [],
+      taskMembers: [],
+      Tmembers: [],
       tempTask: {
-        content: "",
-        time: "",
-        members: []
+        pid: 0,
+        detail: '',
+        begin: '',
+        end: '',
+        state: ''
       },
       options: [
         {
@@ -315,9 +369,17 @@ export default {
           trigger: "blur"
         }]
       },
+      rules: {
+        detail: [{
+          required: true,
+          message: "请输入任务内容",
+          trigger: "blur"
+        }]
+      },
       dialogVisible: false,
       PdialogFormVisible: false,
-      uploadFile: ''
+      uploadFile: '',
+      manager: ''
     }
   },
   computed: {
@@ -338,6 +400,42 @@ export default {
     this.getTasks(this.tempProjectId)
   },
   methods: {
+    deleteTask (task) {
+      deleteATask({ taskId: task.taskId }).then(res => {
+        if (res.code === 200) {
+          this.getTasks(this.tempProjectId)
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error('删除失败')
+        }
+      })
+    },
+    createTask (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.tempTask.begin = this.tempTask.begin
+          this.tempTask.end = this.tempTask.end
+          this.tempTask.pid = this.tempProjectId
+          newTask({
+            projectTask: this.tempTask,
+            members: this.taskMembers
+          }).then(res => {
+            if (res.code === 200) {
+              this.$refs[formName].resetFields()
+              this.tempTask.begin = ''
+              this.tempTask.end = ''
+              this.tempTask.state = ''
+              this.taskMembers = []
+              this.dialogVisible = false
+              this.getTasks(this.tempProjectId)
+              this.$message.success(res.msg)
+            } else {
+              this.$message.success(res.msg)
+            }
+          })
+        }
+      })
+    },
     deleteAResource (resource) {
       var _this = this
       deleteResourceFromProject({
@@ -396,6 +494,14 @@ export default {
     Rcancel () {
       this.RdialogFormVisible = false
       this.$refs.Rupload.clearFiles()
+    },
+    cancel (formName) {
+      this.dialogVisible = false
+      this.$refs[formName].resetFields()
+      this.tempTask.begin = ''
+      this.tempTask.end = ''
+      this.tempTask.state = ''
+      this.taskMembers = []
     },
     beforeUpload (file) {
       let isLt2M = true
@@ -521,7 +627,8 @@ export default {
     getProject (id) {
       getProjectById({ pid: id }).then(res => {
         if (res.code === 200) {
-          this.project = res.data
+          this.project = res.data[0]
+          this.manager = res.data[1].username
         }
       })
     },
@@ -529,6 +636,9 @@ export default {
       getPAllMembers({ pid: id }).then(res => {
         if (res.code === 200) {
           this.members = res.data
+          let arr = this.members.slice(0)
+          arr.shift()
+          this.Tmembers = arr
         } else {
           console.log(res.msg)
         }
@@ -560,6 +670,10 @@ export default {
           console.log(res.msg)
         }
       })
+    },
+    goTask (task) {
+      this.$store.commit('setTempTaskId', task.taskId)
+      this.$router.push({ path: `/Task/${task.taskId}` });
     }
   }
 }

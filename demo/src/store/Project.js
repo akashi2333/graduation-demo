@@ -2,6 +2,7 @@ const Project = {
   state: {
     tempProjectId: 0,
     tempProjectOwner: 0,
+    tempMembers: []
   },
   getters: {
     tempProjectId: state => {
@@ -17,6 +18,13 @@ const Project = {
         tempProjectOwner = JSON.parse(window.sessionStorage.getItem('tempProjectOwner') || null)
       }
       return tempProjectOwner
+    },
+    tempMembers: state => {
+      let tempMembers = state.tempMembers
+      if (JSON.stringify(tempMembers) === 0) {
+        tempMembers = JSON.parse(window.sessionStorage.getItem('tempMembers') || null)
+      }
+      return tempMembers
     }
   },
   mutations: {
@@ -27,6 +35,10 @@ const Project = {
     setTempProjectOwner: (state, tempProjectOwner) => {
       state.tempProjectOwner = tempProjectOwner
       window.sessionStorage.setItem('tempProjectOwner', JSON.stringify(tempProjectOwner))
+    },
+    setTempMembers: (state, tempMembers) => {
+      state.tempMembers = tempMembers
+      window.sessionStorage.setItem('tempMembers', JSON.stringify(tempMembers))
     }
   },
   actions: {

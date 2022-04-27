@@ -28,33 +28,31 @@
           </li>
         </ul>
       </div>
-      <div class="resource">
-        <div class="resource-top">常用资源</div>
-        <ul class="list">
-          <li class="list-item"
-              v-for="resource in goodResources"
-              :key="resource.name">
-            <div class="resource-left">
-              <i class="el-icon-caret-right"
-                 style="color:#409EFF; font-size:25px"></i>
-              <div class="resource-name">{{resource.name}}</div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="team">
-        <div class="team-top">优秀团队</div>
-        <ul class="list">
-          <li class="list-item"
-              v-for="team in goodTeams"
-              :key="team.name">
-            <div class="team-left">
-              <i class="el-icon-caret-right"
-                 style="color:#409EFF; font-size:25px"></i>
-              <div class="team-name">{{team.name}}</div>
-            </div>
-          </li>
-        </ul>
+      <div class="intruducation"
+           style="margin-left:10px">
+        <div class="title">介绍</div>
+        <div class="content">
+          <div class="teamwork">
+            <img src="../assets/teamwork.svg"
+                 alt=""
+                 class="teamwork-img">
+            <p class="text">团队协同：在线多人协同办公，工作内容自动保存、实时同步，随时随地高效协作。</p>
+          </div>
+          <div class="teamwork">
+            <img src="../assets/team-management.svg"
+                 alt=""
+                 class="teamwork-img">
+            <p class="text">团队管理：构建团队公共空间知识库，发布或引导员工查看或导出团队文件：如团队活动、团队项目、学习资料等，促进团队重要信息传达，并获得及时反馈。
+            </p>
+          </div>
+          <div class="teamwork">
+            <img src="../assets/rd-document.svg"
+                 alt=""
+                 class="teamwork-img">
+            <p class="text">研发文档：进行需求文档、测试用例文档、技术文档等研发文档管理，文档可直接与具体开发或测试工作项双向关联，实时同步最近更新，减少沟通成本，提升研发效率。
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -62,7 +60,6 @@
 </template>
 
 <script>
-import { getGoodTeams, getGoodResources, getAllNotices } from '../api/Index'
 export default {
   name: 'Home',
   data () {
@@ -73,88 +70,42 @@ export default {
         { url: require("../assets/3.jpg") },
         { url: require("../assets/4.jpg") }
       ],
-      goodTeams: [
-        // { name: "Meiko" },
-        // { name: "Scout" },
-        // { name: "Viper" },
-        // { name: "Jiejie" },
-        // { name: "Flandre" },
-        // { name: "Xiaoxiang" },
-        // { name: "Junjia" },
-        // { name: "Hope" },
-        // { name: "Clearlove" },
-        // { name: "Deft" }
-      ],
       notices: [
-        // { name: "EDG2020年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2020年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2021年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2021年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2022年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2022年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2023年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2023年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2024年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
-        // { name: "EDG2024年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
-      ],
-      goodResources: [
-        // { name: "EDG-Meiko精彩操作合集" },
-        // { name: "EDG-Scout精彩操作合集" },
-        // { name: "EDG-Flandre精彩操作合集" },
-        // { name: "EDG-Jiejie精彩操作合集" },
-        // { name: "EDG-Viper精彩操作合集" },
-        // { name: "EDG-Xiaoxiang精彩操作合集" },
-        // { name: "EDG-Junjia精彩操作合集" },
-        // { name: "EDG-Hope精彩操作合集" },
-        // { name: "EDG-Clearlove精彩操作合集" },
-        // { name: "EDG-Deft精彩操作合集" }
+        { name: "EDG2020年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2020年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2021年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2021年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2022年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2022年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2023年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2023年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2024年LPL春季赛合集", time: "2020-4-5", publisher: "akashi" },
+        { name: "EDG2024年LPL夏季赛合集", time: "2020-4-5", publisher: "akashi" },
       ]
     };
   },
   methods: {
-    getNotices () {
-      var _this = this
-      getAllNotices().then(res => {
-        if (res.code === 200) {
-          console.log(res.data)
-          _this.notices = res.data
-        } else {
-          console.log(res.msg)
-        }
-      })
-    },
-    getTeams () {
-      var _this = this
-      getGoodTeams().then(res => {
-        if (res.code === 200) {
-          console.log(res.data)
-          _this.teams = res.data
-        } else {
-          console.log(res.msg)
-        }
-      })
-    },
-    getResources () {
-      var _this = this
-      getGoodResources().then(res => {
-        if (res.code === 200) {
-          console.log(res.data)
-          _this.goodResources = res.data
-        } else {
-          console.log(res.msg)
-        }
-      })
-    }
   },
   mounted () {
-    this.getNotices()
-    this.getTeams()
-    this.getResources()
   }
 }
 </script>
 
 <style scoped>
+.teamwork {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+}
+.teamwork-img {
+  width: 30%;
+  height: inherit;
+}
+.text {
+  font-size: 15px;
+  line-height: 1.5;
+}
 .img {
   margin: 0 30px;
   margin-top: 10px;
@@ -166,13 +117,20 @@ export default {
   height: inherit;
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3%;
+  width: 94%;
+  height: 100%;
+}
 .bottom {
   margin: 10px 30px;
   display: flex;
 }
 .notice,
-.resource,
-.team {
+.intruducation {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -180,8 +138,7 @@ export default {
   background-color: white;
 }
 .notice-top,
-.resource-top,
-.team-top {
+.title {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -203,16 +160,9 @@ export default {
   margin-bottom: 10px;
   margin-right: 10px;
 }
-.notice-left,
-.resource-left,
-.team-left {
+.notice-left {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.resource,
-.team {
-  margin-left: 10px;
-  width: 25%;
 }
 </style>
