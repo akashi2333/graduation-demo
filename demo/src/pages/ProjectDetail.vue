@@ -244,7 +244,7 @@
                       <el-select v-model="taskMembers"
                                  multiple
                                  placeholder="请选择">
-                        <el-option v-for="member in members"
+                        <el-option v-for="member in Tmembers"
                                    :key="member.id"
                                    :label="member.username"
                                    :value="member.id">
@@ -342,6 +342,7 @@ export default {
       resources: [],
       tasks: [],
       taskMembers: [],
+      Tmembers: [],
       tempTask: {
         pid: 0,
         detail: '',
@@ -635,6 +636,9 @@ export default {
       getPAllMembers({ pid: id }).then(res => {
         if (res.code === 200) {
           this.members = res.data
+          let arr = this.members.slice(0)
+          arr.shift()
+          this.Tmembers = arr
         } else {
           console.log(res.msg)
         }
@@ -668,7 +672,6 @@ export default {
       })
     },
     goTask (task) {
-      this.$store.commit('setTempMembers', this.members)
       this.$store.commit('setTempTaskId', task.taskId)
       this.$router.push({ path: `/Task/${task.taskId}` });
     }

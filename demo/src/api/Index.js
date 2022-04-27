@@ -56,12 +56,7 @@ export const deleteATask = (params) => deletes(`/project-task/delete`, params)
 export const editTask = (data) => put(`/project-task/update`, data)
 
 export const getTaskMembers = (params) => get(`/project-task-member/getByTaskId`, params)
-
-
-//首页需求，返回List，每个List里有10条数据
-export const getAllNotices = () => get('/notice/getAll')
-export const getGoodTeams = () => get(`/team/getGood`)
-export const getGoodResources = () => get(`/resource/getGood`)
+export const getMyTasks = (params) => get(`/project-task-member/getTaskByUid`, params)
 
 
 

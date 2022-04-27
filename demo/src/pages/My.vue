@@ -137,6 +137,40 @@
             </div>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="我的任务">
+          <div class="myTeam">
+            <div class="team"
+                 style="margin-right: 5px;">
+              <ul class="list">
+                <li v-for="myTask in myTasks.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                    :key="myTask.taskId"
+                    class="list-item">
+                  <div class="list-left">
+                    <i class="el-icon-caret-right"
+                       style="color:#409EFF; font-size:25px"></i>
+                    <div class="team-name">{{myTask.detail}}</div>
+                  </div>
+                  <div class="list-center">
+                    {{myTask.state}}
+                  </div>
+                  <div class="list-right">
+                    <el-button type="primary"
+                               size="small"
+                               @click="goTask(myTask)">查看</el-button>
+                  </div>
+                </li>
+              </ul>
+              <el-pagination class="bottom-bottom"
+                             background
+                             @current-change="handleCurrentChange"
+                             layout="total, prev, pager, next"
+                             :current-page="currentPage"
+                             :page-size="pageSize"
+                             :total="myTasks.length">
+              </el-pagination>
+            </div>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -144,7 +178,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getMyTeams, newTodo, getMyProjects, quitMyProject, quitMyTeam, getMyTodoList, deleteTodoFromList, deleteTodo } from '../api/Index';
+import { getMyTeams, getMyTasks, newTodo, getMyProjects, quitMyProject, quitMyTeam, getMyTodoList, deleteTodoFromList, deleteTodo } from '../api/Index';
 export default {
   name: "My",
   data () {
@@ -155,7 +189,8 @@ export default {
       tempTodo: '',
       todoList: [],
       myTeams: [],
-      myProjects: []
+      myProjects: [],
+      myTasks: []
     }
   },
   computed: {
@@ -169,6 +204,7 @@ export default {
     this.getMyTeams(this.userId)
     this.getMyProjects(this.userId)
     this.getMyTodoList(this.userId)
+    this.getMyTasks(this.userId)
   },
   methods: {
     createTodo () {
@@ -239,6 +275,10 @@ export default {
       this.$store.commit('setTempTeamOwner', team.uid)
       this.$router.push({ path: `/TeamDetail/${team.tid}` });
     },
+    goTask (task) {
+      this.$store.commit('setTempTaskId', task.taskId)
+      this.$router.push({ path: `/Task/${task.taskId}` });
+    },
     quitTeam (team) {
       var _this = this
       if (team.isowner === 1) {
@@ -279,6 +319,13 @@ export default {
           }
         })
       }
+    },
+    getMyTasks (uid) {
+      getMyTasks({ uid: uid }).then(res => {
+        if (res.code === 200) {
+          this.myTasks = res.data
+        }
+      })
     }
   }
 }

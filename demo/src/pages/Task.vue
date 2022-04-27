@@ -175,7 +175,6 @@ export default {
     getTaskMembers (id) {
       getTaskMembers({ taskId: id }).then(res => {
         if (res.code === 200) {
-          res.data.shift()
           this.taskMembers = res.data
         }
       })
