@@ -44,7 +44,7 @@ public class TeamExitController {
     private Respone add(@RequestBody TeamExit teamExit){
         if (teamExitService.list(new QueryWrapper<TeamExit>()
                 .eq("uid",teamExit.getUid())
-                .eq("tid",teamExit.getTid()))!=null){
+                .eq("tid",teamExit.getTid())).size()!=0){
             return new Respone(200,"已申请",null);
         }
         teamExitService.save(teamExit);

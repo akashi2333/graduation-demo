@@ -41,7 +41,7 @@ public class ProjectExitController {
     private Respone add(@RequestBody ProjectExit projectExit){
         if (projectExitService.list(new QueryWrapper<ProjectExit>()
                 .eq("uid",projectExit.getUid())
-                .eq("pid",projectExit.getPid()))!=null){
+                .eq("pid",projectExit.getPid())).size()!=0){
             return new Respone(200,"已申请",null);
         }
         projectExitService.save(projectExit);
