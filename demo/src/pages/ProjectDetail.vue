@@ -412,8 +412,8 @@ export default {
     createTask (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.tempTask.begin = this.tempTask.begin + ' 00:00:00'
-          this.tempTask.end = this.tempTask.end + ' 00:00:00'
+          this.tempTask.begin = this.tempTask.begin
+          this.tempTask.end = this.tempTask.end
           this.tempTask.pid = this.tempProjectId
           newTask({
             projectTask: this.tempTask,
