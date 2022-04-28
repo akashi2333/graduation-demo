@@ -48,6 +48,7 @@ CREATE TABLE `project` (
   `state` varchar(255) DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   `img` mediumblob,
+  `tid` int(255) DEFAULT NULL,
   PRIMARY KEY (`pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
@@ -92,7 +93,7 @@ CREATE TABLE `project_task` (
   `tid` int(11) NOT NULL AUTO_INCREMENT,
   `state` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`tid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `project_task_member` */
 
