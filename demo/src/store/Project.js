@@ -21,7 +21,7 @@ const Project = {
     },
     tempMembers: state => {
       let tempMembers = state.tempMembers
-      if (JSON.stringify(tempMembers) === 0) {
+      if (JSON.stringify(tempMembers) === []) {
         tempMembers = JSON.parse(window.sessionStorage.getItem('tempMembers') || null)
       }
       return tempMembers

@@ -58,5 +58,6 @@ export const editTask = (data) => put(`/project-task/update`, data)
 export const getTaskMembers = (params) => get(`/project-task-member/getByTaskId`, params)
 export const getMyTasks = (params) => get(`/project-task-member/getTaskByUid`, params)
 
-
+export const getMessage = (params) => get(`/chat/findMessages`, params)
+export const send = (data) => post(`/chat/add`, data)
 

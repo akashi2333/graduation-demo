@@ -4,6 +4,7 @@ import Team from './Team'
 import User from './User'
 import Project from './Project'
 import Task from './Task'
+import Message from './Message'
 
 Vue.use(Vuex)
 
@@ -12,7 +13,8 @@ const store = new Vuex.Store({
     Team,
     User,
     Project,
-    Task
+    Task,
+    Message
   }
 })
 

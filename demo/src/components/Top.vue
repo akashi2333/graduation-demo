@@ -42,7 +42,6 @@ export default {
       navs: [
         { name: "首页", path: "/" },
         { name: "全部团队", path: "/Team" },
-        { name: "消息中心", path: "/Info" },
         { name: "个人空间", path: "/My" }
       ],
       loginMsg: [
@@ -62,8 +61,6 @@ export default {
     },
     goToNav (name, path) {
       if (!this.loginState && path === '/My') {
-        this.$message.error("请先登录")
-      } else if (!this.loginState && path === '/Info') {
         this.$message.error("请先登录")
       } else {
         this.$router.push({ path: path })
