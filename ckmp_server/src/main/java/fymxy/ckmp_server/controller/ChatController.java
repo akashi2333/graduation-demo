@@ -47,11 +47,16 @@ public class ChatController {
     })
     @GetMapping("/findMessages")
     private Respone findMessages(Chat chat){
+        //接受的消息
         List<Chat> chatList = chatService.list(new QueryWrapper<Chat>()
                 .eq("send_all", chat.getSendAll())
                 .eq("rid", chat.getRid()));
-        //聊天记录，需要返回
-        chatList.forEach(System.out::println);
+        //发送的消息
+        chatList.addAll(chatService.list(new QueryWrapper<Chat>()
+                .eq("sid",chat.getRid())));
+
+        //chatList.forEach(System.out::println)
+        //排序
         chatList.sort((a,b)->a.getSendDate().before(b.getSendDate())?1:-1);
         return new Respone(200,"查询成功",chatList);
     }
