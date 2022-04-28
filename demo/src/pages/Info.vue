@@ -1,218 +1,131 @@
 <template>
-  <div class="imui-center">
-    <lemon-imui width="1203px"
-                height="500px"
-                :user="user"
-                ref="IMUI"
-                :theme="theme"
-                @change-menu="handleChangeMenu"
-                @change-contact="handleChangeContact"
-                @pull-messages="handlePullMessages"
-                @menu-avatar-click="handleMenuAvatarClick"
-                @send="handleSend">
-      <template #cover>
-        <div class="cover">
-          <img src="../assets/demo-icon.png"
-               alt=""
-               class="icon">
+  <div style="margin-top: 65px"
+       class="info">
+    <div class="header">
+      <div class="title">{{tempAccepter.username}}</div>
+    </div>
+    <div class="main">
+      <div class="talkshow">
+        <div v-for="(item,index) in list"
+             :key="index"
+             :class="item.sid === userId? 'send':'accept'">
+          <i v-show="item.sid != userId"
+             class="el-icon-info"
+             style="color: #409eff;font-size:30px;margin-right:5px"></i>
+          <span>{{item.message}}</span>
+          <i v-show="item.sid == userId"
+             class="el-icon-info"
+             style="color: #409eff;font-size:30px;margin-left:5px"></i>
         </div>
-      </template>
-      <template #message-title="contact">
-        <span>{{ contact.displayName }}</span>
-        <br />
-      </template>
-    </lemon-imui>
+      </div>
+      <div class="sendbox">
+        <el-input class="comment-input"
+                  type="text"
+                  v-model="word"></el-input>
+        <el-button type="primary"
+                   class="sub-btn"
+                   @click="sendmsg">发送</el-button>
+      </div>
+    </div>
   </div>
 </template>
-
 <script>
-import EmojiData from "../assets/emoji";
-
-const getTime = () => {
-  return new Date().getTime();
-};
-const generateRandId = () => {
-  return Math.random()
-    .toString(36)
-    .substr(-8);
-};
-const generateRandWord = () => {
-  return Math.random()
-    .toString(36)
-    .substr(2);
-};
-const generateMessage = (toContactId = "", fromUser) => {
-  if (!fromUser) {
-    fromUser = {
-      id: "system",
-      displayName: "系统测试",
-      avatar: "http://upload.qqbodys.com/allimg/1710/1035512943-0.jpg",
-    };
-  }
-  return {
-    id: generateRandId(),
-    status: "succeed",
-    type: "text",
-    sendTime: getTime(),
-    content: generateRandWord(),
-    //fileSize: 1231,
-    //fileName: "asdasd.doc",
-    toContactId,
-    fromUser,
-  };
-};
+import { mapGetters } from 'vuex'
+import { getMessage, send } from '../api/Index';
 
 export default {
-  name: "app",
   data () {
     return {
-      theme: "default",
-      user: {
-        id: "1",
-        displayName: "June",
-        avatar: require('../assets/5.jpg'),
-      },
-    };
+      list: [],
+      word: ''
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'tempAccepter',
+      'userId'
+    ])
   },
   mounted () {
-    const contactData1 = {
-      id: "contact-1",
-      displayName: "工作协作群",
-      avatar: require('../assets/5.jpg'),
-      index: "[1]群组",
-      unread: 0,
-      lastSendTime: 1566047865417,
-      lastContent: "2",
-    };
-    const contactData2 = {
-      id: "contact-2",
-      displayName: "铁牛",
-      avatar: require('../assets/5.jpg'),
-      index: "T",
-      unread: 32,
-      lastSendTime: 3,
-      lastContent: "你好123",
-    };
-    const contactData3 = {
-      id: "contact-3",
-      displayName: "wgg",
-      avatar: require('../assets/5.jpg'),
-      index: "Z",
-      unread: 10,
-      lastSendTime: 3,
-      lastContent: "你好123",
-    };
-    const { IMUI } = this.$refs;
-    let contactList = [
-      { ...contactData1 },
-      { ...contactData2 },
-      { ...contactData3 },
-    ];
-
-    IMUI.initContacts(contactList);
-    IMUI.initEmoji(EmojiData);
+    console.log(this.tempAccepter)
+    this.getMessages(this.userId)
   },
   methods: {
-    handleMenuAvatarClick () {
-      console.log("Event:menu-avatar-click");
+    sendmsg () {
+      send({
+        message: this.word,
+        rid: this.tempAccepter.id,
+        sendAll: false,
+        sid: this.userId
+      }).then(res => {
+        if (res.code === 200) {
+          this.$message.success(res.msg)
+        } else {
+          this.$message.error('发送失败')
+        }
+      })
     },
-    handleChangeContact (contact, instance) {
-      console.log("Event:change-contact");
-      instance.updateContact({
-        id: contact.id,
-        unread: 0,
-      });
-    },
-    handleSend (message, next, file) {
-      console.log(message, next, file);
-      setTimeout(() => {
-        next();
-      }, 1000);
-    },
-    handlePullMessages (contact, next, instance) {
-      const otheruser = {
-        id: "contact-2",
-        displayName: "铁牛",
-        avatar: require('../assets/5.jpg'),
-      };
-      const _otheruser = {
-        id: "contact-3",
-        displayName: "wgg",
-        avatar: require('../assets/5.jpg'),
-      };
-      setTimeout(() => {
-        const messages = [
-          generateMessage(instance.currentContactId, this.user),
-          generateMessage(instance.currentContactId, otheruser),
-          generateMessage(instance.currentContactId, this.user),
-          generateMessage(instance.currentContactId, otheruser),
-          generateMessage(instance.currentContactId, _otheruser),
-        ];
-        next(messages, true);
-      }, 500);
-    },
-    handleChangeMenu () {
-      console.log("Event:change-menu");
-    },
-  },
-};
+    getMessages (id) {
+      getMessage({
+        rid: id,
+        sendAll: false
+      }).then(res => {
+        if (res.code === 200) {
+          this.list = res.data
+        }
+      })
+    }
+  }
+}
 </script>
-
 <style scoped>
-.imui-center {
-  margin: 0 30px;
-  margin-top: 60px;
+.info {
+  margin: 10px 30px 0 30px;
+  background-color: white;
 }
-.cover {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.header {
+  height: 40px;
+  background-color: #409eff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.icon {
-  height: 150px;
-  width: inherit;
+.title {
+  color: white;
+  font-size: 15px;
 }
-
-input#switch[type='checkbox'] {
-  height: 0;
-  width: 0;
-  display: none;
+.main {
+  margin: 10px;
 }
-
-label#switch-label {
-  cursor: pointer;
-  text-indent: -9999px;
-  width: 34px;
-  height: 20px;
-  background: #aaa;
-  display: block;
-  border-radius: 100px;
-  position: relative;
+.accept {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  margin: 10px 0;
 }
-
-label#switch-label:after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  background: #fff;
-  border-radius: 20px;
-  transition: 0.3s;
+.send {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 15px;
+  margin: 10px 0;
 }
-
-input#switch:checked + label {
-  background: #0fd547;
+.sendbox {
+  margin: 10px 0;
 }
-
-input#switch:checked + label:after {
-  left: calc(100% - 2px);
-  transform: translateX(-100%);
+.inputword {
+  height: 40px;
 }
-
-label#switch-label:active:after {
-  width: 20px;
+.sendbox {
+  display: flex;
+}
+.comment-input {
+  margin-right: 10px;
+}
+.sub-btn {
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
