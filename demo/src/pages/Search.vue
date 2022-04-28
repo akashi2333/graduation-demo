@@ -40,7 +40,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'searchWord'
+      'searchWord',
+      'userId'
     ])
   },
   mounted () {
@@ -51,7 +52,7 @@ export default {
       searchTeamById({ tid: teamId }).then(res => {
         if (res.code === 200) {
           console.log(res.data)
-          this.team = res.data
+          this.team = res.data[0]
           this.isExsited = true
         } else {
           this.isExsited = false
@@ -64,9 +65,9 @@ export default {
         uid: this.userId
       }).then(res => {
         if (res.code === 200) {
-          this.$message(res.msg)
+          this.$message.success(res.msg)
         } else {
-          this.$message(res.msg)
+          this.$message.error(res.msg)
         }
       })
     }
