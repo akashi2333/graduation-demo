@@ -59,6 +59,8 @@ export default {
         sid: this.userId
       }).then(res => {
         if (res.code === 200) {
+          this.getMessages(this.userId)
+          this.word = ''
           this.$message.success(res.msg)
         } else {
           this.$message.error('发送失败')
@@ -71,7 +73,7 @@ export default {
         sendAll: false
       }).then(res => {
         if (res.code === 200) {
-          this.list = res.data
+          this.list = res.data.reverse()
         }
       })
     }

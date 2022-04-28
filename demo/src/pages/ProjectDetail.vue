@@ -99,9 +99,12 @@
                        style="color:#409EFF; font-size:25px"></i>
                     <div class="member-name">{{member.username}}</div>
                   </div>
-                  <div class="list-right"
-                       v-show="isCreater">
+                  <div class="list-right">
                     <el-button type="primary"
+                               size="small"
+                               @click="goInfo(member)">私信</el-button>
+                    <el-button v-show="isCreater"
+                               type="primary"
                                size="small"
                                @click="deleteAMember(member)">删除</el-button>
                   </div>
@@ -400,6 +403,14 @@ export default {
     this.getTasks(this.tempProjectId)
   },
   methods: {
+    goInfo (member) {
+      if (member.id === this.userId) {
+        this.$message.error('不能私信给自己')
+      } else {
+        this.$store.commit('setTempAccepter', member)
+        this.$router.push({ path: `/Info/${member.id}` })
+      }
+    },
     deleteTask (task) {
       deleteATask({ taskId: task.taskId }).then(res => {
         if (res.code === 200) {

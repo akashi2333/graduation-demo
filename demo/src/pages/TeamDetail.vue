@@ -397,8 +397,12 @@ export default {
   },
   methods: {
     goInfo (member) {
-      this.$store.commit('setTempAccepter', member)
-      this.$router.push({ path: `/Info/${member.id}` })
+      if (member.id === this.userId) {
+        this.$message.error('不能私信给自己')
+      } else {
+        this.$store.commit('setTempAccepter', member)
+        this.$router.push({ path: `/Info/${member.id}` })
+      }
     },
     download (resource) {
       downloadResource({
