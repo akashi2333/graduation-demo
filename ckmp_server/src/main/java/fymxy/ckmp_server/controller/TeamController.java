@@ -47,6 +47,7 @@ public class TeamController {
     @Autowired
     UserService userService;
 
+
     @ApiOperation(value = "新建team操作")
     @ApiOperationSupport(ignoreParameters = {"team.tid","team.timestamp","team.isowner"})
     @ApiResponses({
@@ -194,7 +195,7 @@ public class TeamController {
     }
 
 
-    @ApiOperation(value = "根据tid查询拥有的project（下属成员拥有的）")
+    @ApiOperation(value = "根据tid查询拥有的project")
     @ApiResponses({
             @ApiResponse(code = 200,message = "查询成功")
     })
@@ -207,10 +208,8 @@ public class TeamController {
             "team.img"})
     @GetMapping("/getProjectByTid")
     private Respone getProjectByTid(Team team){
-        HashSet<Project> ans = new HashSet<>();
-        for (Team tid : teamService.list(new QueryWrapper<Team>().eq("tid",team.getTid()))) {
-            ans.addAll(projectService.list(new QueryWrapper<Project>(  ).eq("uid",tid.getUid())));
-        }
+        HashSet<Project> ans = new HashSet<>(projectService.list(new QueryWrapper<Project>()
+                .eq("tid", team.getTid())));
         return new Respone(200,"查询成功",ans);
     }
 

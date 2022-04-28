@@ -51,5 +51,7 @@ public class Project implements Serializable {
     @ApiModelProperty(value = "图片",required = true)
     private byte[] img;
 
+    private int tid;
+
 
 }

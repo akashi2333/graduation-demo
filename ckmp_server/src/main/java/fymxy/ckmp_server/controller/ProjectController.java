@@ -69,6 +69,9 @@ public class ProjectController {
                 .eq("pid", project.getPid()));
 
         project.setTimestamp(oldProject.getTimestamp());
+
+        project.setTid(oldProject.getTid());
+
         project.setUid(oldProject.getUid());
         if (file!=null){
             setProjectImg(file,project);

@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectResource;
+import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.TeamResource;
+import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.TeamResourceService;
+import fymxy.ckmp_server.service.TeamService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -20,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +41,8 @@ import java.util.List;
 public class TeamResourceController {
     @Autowired
     TeamResourceService teamResourceService;
+    @Autowired
+    TeamService teamService;
 
     @Value("${file.basedir}")
     String basePath;
@@ -49,6 +55,9 @@ public class TeamResourceController {
     @ApiOperationSupport(ignoreParameters = {"teamResource.resourceName","teamResource.timestamp"})
     @PostMapping("/add")
     public Respone uploadFile(@RequestBody MultipartFile file,@RequestParam int tid,@RequestParam int uid) throws IOException {
+        if (!isMember(tid,uid)){
+            return new Respone(200,"未加入团队",null);
+        }
         String originalFilename = file.getOriginalFilename();
         TeamResource teamResource = new TeamResource();
         teamResource.setTid(tid);
@@ -132,5 +141,15 @@ public class TeamResourceController {
                 .eq("resource_name",teamResource.getResourceName()));
         file.delete();
         return new Respone(200,"删除成功",null);
+    }
+
+
+    private Boolean isMember(int tid,int uid){
+        ArrayList<Integer> joinedTeamId = new ArrayList<>();
+        for (Team joinedTeam : teamService.list(new QueryWrapper<Team>()
+                .eq("uid", uid))) {
+            joinedTeamId.add(joinedTeam.getTid());
+        }
+        return joinedTeamId.contains(tid);
     }
 }

@@ -5,11 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectJoin;
+import fymxy.ckmp_server.entity.Team;
 import fymxy.ckmp_server.entity.User;
 import fymxy.ckmp_server.entity.UserProject;
-import fymxy.ckmp_server.service.ProjectJoinService;
-import fymxy.ckmp_server.service.UserProjectService;
-import fymxy.ckmp_server.service.UserService;
+import fymxy.ckmp_server.service.*;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +32,11 @@ public class ProjectJoinController {
     @Autowired
     UserService userService;
     @Autowired
+    ProjectService projectService;
+    @Autowired
     UserProjectService userProjectService;
+    @Autowired
+    TeamService teamService;
 
     @ApiOperation(value = "申请加群操作")
     @ApiResponses({
@@ -41,6 +44,18 @@ public class ProjectJoinController {
     })
     @PostMapping("/add")
     private Respone add(@RequestBody ProjectJoin projectJoin){
+        ArrayList<Integer> joinedTeamId = new ArrayList<>();
+        for (Team joinedTeam : teamService.list(new QueryWrapper<Team>()
+                .eq("uid", projectJoin.getUid()))) {
+            joinedTeamId.add(joinedTeam.getTid());
+        }
+
+        if (!joinedTeamId.contains(
+                projectService.getById(projectJoin.getPid()).getTid())){
+            return new Respone(200,"未加入团队",null);
+        }
+
+
         if (userProjectService.list(new QueryWrapper<UserProject>()
                 .eq("uid",projectJoin.getUid())
                 .eq("pid",projectJoin.getPid())).size()!=0){

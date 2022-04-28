@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import fymxy.ckmp_server.common.Respone;
 import fymxy.ckmp_server.entity.ProjectResource;
+import fymxy.ckmp_server.entity.Team;
+import fymxy.ckmp_server.entity.UserProject;
 import fymxy.ckmp_server.service.ProjectResourceService;
+import fymxy.ckmp_server.service.UserProjectService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,7 @@ import sun.misc.UCDecoder;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +40,8 @@ import java.util.List;
 public class ProjectResourceController {
     @Autowired
     ProjectResourceService projectResourceService;
+    @Autowired
+    UserProjectService userProjectService;
 
     @Value("${file.basedir}")
     String basePath;
@@ -48,6 +54,9 @@ public class ProjectResourceController {
     @ApiOperationSupport(ignoreParameters = {"projectResource.resourceName","projectResource.timestamp"})
     @PostMapping("/add")
     public Respone uploadFile(@RequestBody MultipartFile file,@RequestParam int pid,@RequestParam int uid) throws IOException {
+        if (!isMember(pid,uid)){
+            return new Respone(200,"未加入项目",null);
+        }
         String originalFilename = file.getOriginalFilename();
         ProjectResource projectResource = new ProjectResource();
         projectResource.setPid(pid);
@@ -140,4 +149,15 @@ public class ProjectResourceController {
         file.delete();
         return new Respone(200,"删除成功",null);
     }
+
+
+    private Boolean isMember(int pid,int uid){
+        ArrayList<Integer> joinedProjectId = new ArrayList<>();
+        for (UserProject joinedProject : userProjectService.list(new QueryWrapper<UserProject>()
+                .eq("uid", uid))) {
+            joinedProjectId.add(joinedProject.getPid());
+        }
+        return joinedProjectId.contains(pid);
+    }
+
 }
