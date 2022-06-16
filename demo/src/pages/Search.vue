@@ -41,7 +41,8 @@ export default {
   computed: {
     ...mapGetters([
       'searchWord',
-      'userId'
+      'userId',
+      'loginState'
     ])
   },
   mounted () {
@@ -60,16 +61,20 @@ export default {
       })
     },
     join (team) {
-      joinTeam({
-        tid: team.tid,
-        uid: this.userId
-      }).then(res => {
-        if (res.code === 200) {
-          this.$message.success(res.msg)
-        } else {
-          this.$message.error(res.msg)
-        }
-      })
+      if (this.loginState) {
+        joinTeam({
+          tid: team.tid,
+          uid: this.userId
+        }).then(res => {
+          if (res.code === 200) {
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error(res.msg)
+          }
+        })
+      } else {
+        this.$message.error('请先登录')
+      }
     }
   }
 }

@@ -15,7 +15,7 @@
       <el-button type="text"
                  class="new-team"
                  icon="el-icon-plus"
-                 @click="dialogFormVisible = true">新建团队</el-button>
+                 @click="create()">新建团队</el-button>
       <el-dialog title="新建团队"
                  :visible.sync="dialogFormVisible"
                  width="50%">
@@ -126,13 +126,21 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'userId'
+      'userId',
+      'loginState'
     ])
   },
   mounted () {
     this.getAllTeams()
   },
   methods: {
+    create () {
+      if (this.loginState) {
+        this.dialogFormVisible = true
+      } else {
+        this.$message.error('请先登录')
+      }
+    },
     handleExceed (files, fileList) {
       this.$message.error("上传图片不能超过1张!");
     },
@@ -199,21 +207,30 @@ export default {
       })
     },
     goTeam (team) {
-      this.$store.commit('setTempTeamId', team.tid)
-      this.$store.commit('setTempTeamOwner', team.uid)
-      this.$router.push({ path: `/TeamDetail/${team.tid}` });
+      if (this.loginState) {
+        this.$store.commit('setTempTeamId', team.tid)
+        this.$store.commit('setTempTeamOwner', team.uid)
+        this.$router.push({ path: `/TeamDetail/${team.tid}` });
+      } else {
+        this.$message.error('请先登录')
+      }
     },
     join (team) {
-      joinTeam({
-        tid: team.tid,
-        uid: this.userId
-      }).then(res => {
-        if (res.code === 200) {
-          this.$message.success(res.msg)
-        } else {
-          this.$message.error(res.msg)
-        }
-      })
+      if (this.loginState) {
+        joinTeam({
+          tid: team.tid,
+          uid: this.userId
+        }).then(res => {
+          if (res.code === 200) {
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error(res.msg)
+          }
+        })
+      } else {
+        this.$message.error('请先登录')
+      }
+
     },
     search () {
       this.$store.commit('setSearchWord', this.keywords)

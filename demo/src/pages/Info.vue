@@ -5,17 +5,18 @@
       <div class="title">{{tempAccepter.username}}</div>
     </div>
     <div class="main">
-      <div class="talkshow">
+      <div class="talkshow"
+           id="gundong">
         <div v-for="(item,index) in list"
              :key="index"
              :class="item.sid === userId? 'send':'accept'">
           <i v-show="item.sid != userId"
              class="el-icon-info"
-             style="color: #409eff;font-size:30px;margin-right:5px"></i>
+             style="color: #409eff;font-size:30px;margin-right:10px"></i>
           <span>{{item.message}}</span>
           <i v-show="item.sid == userId"
              class="el-icon-info"
-             style="color: #409eff;font-size:30px;margin-left:5px"></i>
+             style="color: #409eff;font-size:30px;margin-left:10px"></i>
         </div>
       </div>
       <div class="sendbox">
@@ -45,6 +46,10 @@ export default {
       'tempAccepter',
       'userId'
     ])
+  },
+  updated () {
+    let msg = document.getElementById('gundong')
+    msg.scrollTop = msg.scrollHeight - msg.clientHeight
   },
   mounted () {
     console.log(this.tempAccepter)
@@ -81,6 +86,56 @@ export default {
 }
 </script>
 <style scoped>
+.send span {
+  display: inline-block;
+  position: relative;
+  padding: 8px;
+  max-width: calc(100% - 90px);
+  min-height: 20px;
+  line-height: 20px;
+  font-size: 15px;
+  word-break: break-all;
+  border-radius: 4px;
+  background-color: #409eff;
+  color: white;
+}
+.send span:before {
+  content: ' ';
+  position: absolute;
+  top: 9px;
+  left: 100%;
+  border: 6px solid transparent;
+  border-left-color: #409eff;
+}
+.accept span {
+  display: inline-block;
+  position: relative;
+  padding: 8px;
+  max-width: calc(100% - 90px);
+  min-height: 20px;
+  line-height: 20px;
+  font-size: 15px;
+  word-break: break-all;
+  border-radius: 4px;
+  text-align: left;
+  background-color: #f5f5f5;
+}
+.accept span:before {
+  content: ' ';
+  position: absolute;
+  top: 9px;
+  right: 100%;
+  border: 6px solid transparent;
+  border-right-color: #f5f5f5;
+}
+.talkshow {
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.talkshow::-webkit-scrollbar {
+  display: none;
+}
 .info {
   margin: 10px 30px 0 30px;
   background-color: white;
@@ -97,29 +152,27 @@ export default {
   font-size: 15px;
 }
 .main {
-  margin: 10px;
+  padding: 10px;
 }
 .accept {
   display: flex;
   align-items: center;
   font-size: 15px;
-  margin: 10px 0;
+  margin: 20px 0;
 }
 .send {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   font-size: 15px;
-  margin: 10px 0;
+  margin: 20px 0;
 }
 .sendbox {
   margin: 10px 0;
+  display: flex;
 }
 .inputword {
   height: 40px;
-}
-.sendbox {
-  display: flex;
 }
 .comment-input {
   margin-right: 10px;

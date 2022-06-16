@@ -138,36 +138,32 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="我的任务">
-          <div class="myTeam">
-            <div class="team"
-                 style="margin-right: 5px;">
-              <ul class="list">
-                <li v-for="myTask in myTasks.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-                    :key="myTask.taskId"
-                    class="list-item">
-                  <div class="list-left">
-                    <i class="el-icon-caret-right"
-                       style="color:#409EFF; font-size:25px"></i>
-                    <div class="team-name">{{myTask.detail}}</div>
-                  </div>
-                  <div class="list-center">
-                    {{myTask.state}}
-                  </div>
-                  <div class="list-right">
-                    <el-button type="primary"
-                               size="small"
-                               @click="goTask(myTask)">查看</el-button>
-                  </div>
-                </li>
-              </ul>
-              <el-pagination class="bottom-bottom"
-                             background
-                             @current-change="handleCurrentChange"
-                             layout="total, prev, pager, next"
-                             :current-page="currentPage"
-                             :page-size="pageSize"
-                             :total="myTasks.length">
-              </el-pagination>
+          <div class="myTask">
+            <div class="task">
+              任务总数：{{taskNum}}
+            </div>
+            <div class="num">
+              <div class="num_1">
+                <img src="../assets/start.svg"
+                     class="image">
+                <div class="tasknum">
+                  待开始任务数：{{taskNum1}}
+                </div>
+              </div>
+              <div class="num_1">
+                <img src="../assets/ing.svg"
+                     class="image">
+                <div class="tasknum">
+                  正在进行中任务数：{{taskNum2}}
+                </div>
+              </div>
+              <div class="num_1">
+                <img src="../assets/finished.svg"
+                     class="image">
+                <div class="tasknum">
+                  已结束任务数：{{taskNum3}}
+                </div>
+              </div>
             </div>
           </div>
         </el-tab-pane>
@@ -190,7 +186,10 @@ export default {
       todoList: [],
       myTeams: [],
       myProjects: [],
-      myTasks: []
+      taskNum: 0,
+      taskNum1: 0,
+      taskNum2: 0,
+      taskNum3: 0,
     }
   },
   computed: {
@@ -323,7 +322,16 @@ export default {
     getMyTasks (uid) {
       getMyTasks({ uid: uid }).then(res => {
         if (res.code === 200) {
-          this.myTasks = res.data
+          this.taskNum = res.data.length
+          for (let i = 0; i < res.data.length; i++) {
+            if (res.data[i].state === "待开始") {
+              this.taskNum1++
+            } else if (res.data[i].state === "正在进行中") {
+              this.taskNum2++
+            } else {
+              this.taskNum3++
+            }
+          }
         }
       })
     }
@@ -332,6 +340,29 @@ export default {
 </script>
 
 <style scoped>
+.num_1 {
+  height: 32px;
+  align-items: center;
+  margin: 10px;
+  display: flex;
+}
+.tasknum {
+  font-size: 15px;
+  margin-left: 10px;
+}
+.image {
+  height: 20px;
+  width: inherit;
+}
+
+.task {
+  font-size: 15px;
+  height: 32px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .my {
   margin: 0 30px;
 }

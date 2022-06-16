@@ -15,7 +15,7 @@
                      class="edit-project"
                      icon="el-icon-edit"
                      @click="PdialogFormVisible = true">编辑项目</el-button>
-          <el-dialog title="新建项目"
+          <el-dialog title="编辑项目"
                      :visible.sync="PdialogFormVisible"
                      width="50%">
             <el-form label-position="right"
@@ -306,7 +306,8 @@
                                @click="goTask(task)">查看</el-button>
                     <el-button type="primary"
                                size="small"
-                               @click="deleteTask(task)">删除</el-button>
+                               @click="deleteTask(task)"
+                               v-show="isCreater">删除</el-button>
                   </div>
                 </li>
               </ul>
@@ -403,9 +404,19 @@ export default {
     this.getTasks(this.tempProjectId)
   },
   methods: {
+    check (id) {
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.members[i].id === id) {
+          return true
+        }
+      }
+      return false
+    },
     goInfo (member) {
       if (member.id === this.userId) {
         this.$message.error('不能私信给自己')
+      } else if (!this.check(this.userId)) {
+        this.$message.error('你不是项目成员')
       } else {
         this.$store.commit('setTempAccepter', member)
         this.$router.push({ path: `/Info/${member.id}` })

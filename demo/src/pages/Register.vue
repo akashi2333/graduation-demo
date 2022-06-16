@@ -112,7 +112,7 @@ export default {
             if (res.code === 200) {
               _this.$message.success('注册成功')
               setTimeout(function () {
-                _this.$router.push({ path: '/' })
+                _this.$router.push({ path: '/Login' })
               }, 2000)
             } else {
               _this.$message.error(res.msg)

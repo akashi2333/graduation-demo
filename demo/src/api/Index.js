@@ -1,6 +1,5 @@
 import { get, post, deletes, put } from './Http'
 
-//登录注册
 export const register = (data) => post(`/user/register`, data)
 export const login = (params) => get(`/user/login`, params)
 
@@ -60,4 +59,9 @@ export const getMyTasks = (params) => get(`/project-task-member/getTaskByUid`, p
 
 export const getMessage = (params) => get(`/chat/findMessages`, params)
 export const send = (data) => post(`/chat/add`, data)
+
+export const getTaskComments = (params) => get(`/project-task/getComments`, params)
+export const sendComment = (data) => post(`/project-task/addComments`, data)
+export const sendLike = (data) => post(`/project-task/addLike`, data)
+export const deleteLike = (params) => deletes(`/project-task/deleteLike`, params)
 

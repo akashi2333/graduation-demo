@@ -396,47 +396,65 @@ export default {
     this.getResources(this.tempTeamId)
   },
   methods: {
+    check (id) {
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.members[i].id === id) {
+          return true
+        }
+      }
+      return false
+    },
     goInfo (member) {
       if (member.id === this.userId) {
         this.$message.error('不能私信给自己')
+      } else if (!this.check(this.userId)) {
+        this.$message.error('你不是团队成员')
       } else {
         this.$store.commit('setTempAccepter', member)
         this.$router.push({ path: `/Info/${member.id}` })
       }
     },
     download (resource) {
-      downloadResource({
-        uid: this.userId,
-        tid: this.tempTeamId,
-        resourceName: resource.resourceName
-      }).then(res => {
-        let url = `http://localhost:8888/team-resource/download?resourceName=${resource.resourceName}&tid=${this.tempTeamId}&uid=${this.userId}`
-        let link = document.createElement('a')
-        link.style.display = 'none'
-        link.href = url
-        link.download = decodeURIComponent(resource.resourceName)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-        this.$message.success('下载成功')
-      })
+      if(!this.check(this.userId)) {
+        this.$message.error('你不是团队成员')
+      } else {
+        downloadResource({
+          uid: this.userId,
+          tid: this.tempTeamId,
+          resourceName: resource.resourceName
+        }).then(res => {
+          let url = `http://localhost:8888/team-resource/download?resourceName=${resource.resourceName}&tid=${this.tempTeamId}&uid=${this.userId}`
+          let link = document.createElement('a')
+          link.style.display = 'none'
+          link.href = url
+          link.download = decodeURIComponent(resource.resourceName)
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(url)
+          this.$message.success('下载成功')
+        })
+      }
     },
     createResource () {
-      let fd = new FormData();
-      fd.append('tid', this.tempTeamId)
-      fd.append('uid', this.userId)
-      fd.append('file', this.uploadFile)
-      newResource(fd).then(res => {
-        if (res.code === 200) {
-          this.RdialogFormVisible = false
-          this.$refs.Rupload.clearFiles()
-          this.getResources(this.tempTeamId)
-          this.$message.success(res.msg)
-        } else {
-          this.$message.error(res.msg);
-        }
-      })
+      if(!this.check(this.userId)) {
+        this.$message.error('你不是团队成员')
+      } else {
+        let fd = new FormData();
+        fd.append('tid', this.tempTeamId)
+        fd.append('uid', this.userId)
+        fd.append('file', this.uploadFile)
+        newResource(fd).then(res => {
+          if (res.code === 200) {
+            this.RdialogFormVisible = false
+            this.$refs.Rupload.clearFiles()
+            this.getResources(this.tempTeamId)
+            this.$message.success(res.msg)
+          } else {
+            this.$message.error(res.msg);
+          }
+        })
+      }
     },
     RchangeFile (file, fileList) {
       this.uploadFile = file.raw
